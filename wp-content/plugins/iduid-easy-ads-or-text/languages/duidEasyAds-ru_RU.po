@@ -1,0 +1,148 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && "
+"(n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Project-Id-Version: Easy Ads or Text\n"
+"POT-Creation-Date: 2019-07-16 19:39+0800\n"
+"PO-Revision-Date: 2019-07-16 20:12+0800\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.1\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: iduid-easy-ads.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Last-Translator: \n"
+"Language: ru_RU\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: iduid-easy-ads.php:68
+msgid "Front Page"
+msgstr "Главная страница"
+
+#: iduid-easy-ads.php:69
+msgid "Home Page"
+msgstr "Домашняя страница"
+
+#: iduid-easy-ads.php:70
+msgid "Category Page"
+msgstr "Категории сайта"
+
+#: iduid-easy-ads.php:71
+msgid "Archive Page"
+msgstr "Архивы сайта"
+
+#: iduid-easy-ads.php:72
+msgid "Single Page"
+msgstr "Страница записи"
+
+#: iduid-easy-ads.php:73
+msgid "Permanent Page"
+msgstr "Постоянная страница"
+
+#: iduid-easy-ads.php:89
+msgctxt "Post Type General Name"
+msgid "Items"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+#: iduid-easy-ads.php:90
+msgid "Easy Ads or Text"
+msgstr ""
+
+#: iduid-easy-ads.php:91
+msgid "Items"
+msgstr "Записи"
+
+#: iduid-easy-ads.php:95
+msgid "duid-ad-options"
+msgstr ""
+
+#: iduid-easy-ads.php:96
+msgid "Ad Post Type"
+msgstr ""
+
+#: iduid-easy-ads.php:131
+msgid "Title"
+msgstr "Название"
+
+#: iduid-easy-ads.php:132
+msgid "Date"
+msgstr "Дата"
+
+#: iduid-easy-ads.php:145
+msgid "Side Bars"
+msgstr "Сайдбары"
+
+#: iduid-easy-ads.php:152
+msgid "Check page"
+msgstr "Страницы"
+
+#: iduid-easy-ads.php:159
+msgid "Counts Ad"
+msgstr "Просмотры"
+
+#: iduid-easy-ads.php:166
+msgid "Stats Advertising"
+msgstr "Статистика"
+
+#: iduid-easy-ads.php:173
+msgid "Short Code"
+msgstr "Шорткод"
+
+#: inc/meta_box_stats.php:5
+msgid "Daily"
+msgstr "День"
+
+#: inc/meta_box_stats.php:6
+msgid "Weekly"
+msgstr "Неделя"
+
+#: inc/meta_box_stats.php:7
+msgid "Monthly"
+msgstr "Месяц"
+
+#: inc/meta_box_stats.php:19 inc/meta_box_stats.php:63
+msgid "Visits"
+msgstr "Просмотры"
+
+#: inc/meta_box_stats.php:26
+msgid "None"
+msgstr "Пусто"
+
+#: inc/meta_box_stats.php:46
+msgid ""
+"Sorry, couldn't draw graph for selected period, please try different time period."
+msgstr ""
+"К сожалению, не удалось нарисовать график для выбранного периода, пожалуйста, "
+"попробуйте другой период времени."
+
+#. Description of the plugin/theme
+msgid ""
+"Easily add ads, any text or html. On any page without problems, just a few clicks. "
+"Everything is very simple and easy, use flexible display filters. You can even "
+"limit the display by the number of views."
+msgstr ""
+"Легко добавить рекламу, любой текст или HTML. На любой странице без проблем всего "
+"несколько кликов. Все очень просто и легко, используйте гибкие фильтры дисплея. Вы "
+"даже можете ограничить отображение по количеству просмотров."
+
+#. Author of the plugin/theme
+msgid "Duid from kwork"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://kwork.ru/user/duid"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "Copy this shortcode and paste it into your records, on a page or in text form."
+msgstr ""
+"Скопируйте этот шорткод и вставьте его в свои записи, на странице или в текстовом "
+"виде"

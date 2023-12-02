@@ -1,0 +1,928 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-22 11:13+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: 404.php:6
+msgid "404"
+msgstr ""
+
+#: 404.php:7
+msgid "Oops! That page can't be found."
+msgstr ""
+
+#: 404.php:8
+msgid ""
+"Sorry, but the page you are looking for is not found. Please, make sure you "
+"have typed the current URL."
+msgstr ""
+
+#: 404.php:9
+msgid "Go to Home"
+msgstr ""
+
+#: comments.php:21
+msgid "Comment"
+msgstr ""
+
+#: comments.php:24
+msgid "Name"
+msgstr ""
+
+#: comments.php:25 framework/widgets/store-info.php:25
+msgid "Email"
+msgstr ""
+
+#: comments.php:37
+msgid "Comments"
+msgstr ""
+
+#: comments.php:55
+msgid "Comments are closed."
+msgstr ""
+
+#: footer.php:21
+msgid "Go To Top"
+msgstr ""
+
+#: footer.php:74
+msgid "Home"
+msgstr ""
+
+#: footer.php:85
+msgid "wishlist"
+msgstr ""
+
+#: footer.php:103
+msgid "Account"
+msgstr ""
+
+#: functions.php:56 import/import.php:11
+msgid "Primary Menu"
+msgstr ""
+
+#: functions.php:57 import/import.php:12
+msgid "Vertical Menu"
+msgstr ""
+
+#: functions.php:58 import/import.php:13
+msgid "Top Right Menu"
+msgstr ""
+
+#: functions.php:65
+msgid "Widget Area"
+msgstr ""
+
+#: functions.php:67 functions.php:76 functions.php:85 functions.php:95
+msgid "Add widgets here to appear in your sidebar."
+msgstr ""
+
+#: functions.php:74
+msgid "Shop Widget Area"
+msgstr ""
+
+#: functions.php:83
+msgid "Single product Widget Area"
+msgstr ""
+
+#: functions.php:93
+msgid "Footer Sidebar "
+msgstr ""
+
+#: functions.php:136
+msgid "Days"
+msgstr ""
+
+#: functions.php:137
+msgid "Hrs"
+msgstr ""
+
+#: functions.php:138
+msgid "Mins"
+msgstr ""
+
+#: functions.php:139
+msgid "Secs"
+msgstr ""
+
+#: header.php:61
+msgid "Hotline:"
+msgstr ""
+
+#: header.php:64
+msgid "E-mail:"
+msgstr ""
+
+#: page.php:45
+msgid "Pages:"
+msgstr ""
+
+#: page.php:49
+msgid "Page"
+msgstr ""
+
+#: searchform.php:2
+msgctxt "tools"
+msgid "Search here"
+msgstr ""
+
+#: framework/theme-functions.php:49
+msgid "Comment navigation"
+msgstr ""
+
+#: framework/theme-functions.php:52
+msgid "Older Comments"
+msgstr ""
+
+#: framework/theme-functions.php:55
+msgid "Newer Comments"
+msgstr ""
+
+#: framework/theme-functions.php:89
+#, php-format
+msgid "%1$s at %2$s"
+msgstr ""
+
+#: framework/theme-functions.php:91
+msgid "Reply"
+msgstr ""
+
+#: framework/theme-functions.php:94
+msgid "Your comment is awaiting moderation."
+msgstr ""
+
+#: framework/theme-functions.php:264
+msgid "Languages"
+msgstr ""
+
+#: framework/theme-functions.php:287
+msgid "Currency"
+msgstr ""
+
+#: framework/theme-functions.php:298 template-parts/form-search.php:25
+msgid "Search entire store here..."
+msgstr ""
+
+#: framework/vc-functions.php:12
+msgid "Text"
+msgstr ""
+
+#: framework/vc-functions.php:15
+msgid "This is custom heading element"
+msgstr ""
+
+#: framework/vc-functions.php:16
+msgid ""
+"Note: If you are using non-latin characters be sure to activate them under "
+"Settings/Visual Composer/General Settings."
+msgstr ""
+
+#: framework/vc-functions.php:31
+msgid "Image"
+msgstr ""
+
+#: framework/vc-functions.php:54
+msgid "Select Layout"
+msgstr ""
+
+#: framework/vc-functions.php:56
+msgid "Default"
+msgstr ""
+
+#: framework/vc-functions.php:57
+msgid "Layout 01"
+msgstr ""
+
+#: framework/vc-functions.php:68
+msgid "Sub Title"
+msgstr ""
+
+#: framework/vc-functions.php:78 framework/widgets/lastest-post.php:22
+#: framework/widgets/products.php:15 framework/widgets/store-info.php:15
+msgid "Title"
+msgstr ""
+
+#: framework/woo-functions.php:82
+msgid "Out of Stock"
+msgstr ""
+
+#: framework/woo-functions.php:104
+msgid "Hurry up!"
+msgstr ""
+
+#: framework/woo-functions.php:105
+msgid "Offer ends in:"
+msgstr ""
+
+#: framework/woo-functions.php:163
+msgid "Cart"
+msgstr ""
+
+#: framework/woo-functions.php:180
+msgid " Items"
+msgstr ""
+
+#: framework/woo-functions.php:181
+msgid "View cart"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:327
+msgid "Install Required Plugins"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:328
+msgid "Install Plugins"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:330
+#, php-format
+msgid "Installing Plugin: %s"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:332
+#, php-format
+msgid "Updating Plugin: %s"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:333
+msgid "Something went wrong with the plugin API."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:336
+#, php-format
+msgid "This theme requires the following plugin: %1$s."
+msgid_plural "This theme requires the following plugins: %1$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:342
+#, php-format
+msgid "This theme recommends the following plugin: %1$s."
+msgid_plural "This theme recommends the following plugins: %1$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:348
+#, php-format
+msgid ""
+"The following plugin needs to be updated to its latest version to ensure "
+"maximum compatibility with this theme: %1$s."
+msgid_plural ""
+"The following plugins need to be updated to their latest version to ensure "
+"maximum compatibility with this theme: %1$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:354
+#, php-format
+msgid "There is an update available for: %1$s."
+msgid_plural "There are updates available for the following plugins: %1$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:360
+#, php-format
+msgid "The following required plugin is currently inactive: %1$s."
+msgid_plural "The following required plugins are currently inactive: %1$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:366
+#, php-format
+msgid "The following recommended plugin is currently inactive: %1$s."
+msgid_plural "The following recommended plugins are currently inactive: %1$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:371
+msgid "Begin installing plugin"
+msgid_plural "Begin installing plugins"
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:376
+msgid "Begin updating plugin"
+msgid_plural "Begin updating plugins"
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:381
+msgid "Begin activating plugin"
+msgid_plural "Begin activating plugins"
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:385
+msgid "Return to Required Plugins Installer"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:386
+#: framework/classes/class-tgm-plugin-activation.php:827
+#: framework/classes/class-tgm-plugin-activation.php:2532
+#: framework/classes/class-tgm-plugin-activation.php:3577
+msgid "Return to the Dashboard"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:387
+#: framework/classes/class-tgm-plugin-activation.php:3157
+msgid "Plugin activated successfully."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:388
+#: framework/classes/class-tgm-plugin-activation.php:2950
+msgid "The following plugin was activated successfully:"
+msgid_plural "The following plugins were activated successfully:"
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:390
+#, php-format
+msgid "No action taken. Plugin %1$s was already active."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:392
+#, php-format
+msgid ""
+"Plugin not activated. A higher version of %s is needed for this theme. "
+"Please update the plugin."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:394
+#, php-format
+msgid "All plugins installed and activated successfully. %1$s"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:395
+msgid "Dismiss this notice"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:396
+msgid ""
+"There are one or more required or recommended plugins to install, update or "
+"activate."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:397
+msgid "Please contact the administrator of this site for help."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:522
+msgid "This plugin needs to be updated to be compatible with your theme."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:523
+msgid "Update Required"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:933
+msgid ""
+"The remote plugin package does not contain a folder with the desired slug "
+"and renaming did not work."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:933
+#: framework/classes/class-tgm-plugin-activation.php:936
+msgid ""
+"Please contact the plugin provider and ask them to package their plugin "
+"according to the WordPress guidelines."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:936
+msgid ""
+"The remote plugin package consists of more than one file, but the files are "
+"not packaged in a folder."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:1120
+#: framework/classes/class-tgm-plugin-activation.php:2946
+msgctxt "plugin A *and* plugin B"
+msgid "and"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:1981
+#, php-format
+msgid "TGMPA v%s"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2272
+msgid "Required"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2275
+msgid "Recommended"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2291
+msgid "WordPress Repository"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2294
+msgid "External Source"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2297
+msgid "Pre-Packaged"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2314
+msgid "Not Installed"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2318
+msgid "Installed But Not Activated"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2320
+msgid "Active"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2326
+msgid "Required Update not Available"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2329
+msgid "Requires Update"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2332
+msgid "Update recommended"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2341
+#, php-format
+msgctxt "Install/Update Status"
+msgid "%1$s, %2$s"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2387
+#, php-format
+msgctxt "plugins"
+msgid "All <span class=\"count\">(%s)</span>"
+msgid_plural "All <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2391
+#, php-format
+msgid "To Install <span class=\"count\">(%s)</span>"
+msgid_plural "To Install <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2395
+#, php-format
+msgid "Update Available <span class=\"count\">(%s)</span>"
+msgid_plural "Update Available <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2399
+#, php-format
+msgid "To Activate <span class=\"count\">(%s)</span>"
+msgid_plural "To Activate <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2481
+msgctxt "as in: \"version nr unknown\""
+msgid "unknown"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2489
+msgid "Installed version:"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2497
+msgid "Minimum required version:"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2509
+msgid "Available version:"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2532
+msgid "No plugins to install, update or activate."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2545
+msgid "Plugin"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2546
+msgid "Source"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2547
+msgid "Type"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2551
+msgid "Version"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2552
+msgid "Status"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2601
+#, php-format
+msgid "Install %2$s"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2606
+#, php-format
+msgid "Update %2$s"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2612
+#, php-format
+msgid "Activate %2$s"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2682
+msgid "Upgrade message from the plugin author:"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2715
+msgid "Install"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2721
+msgid "Update"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2724
+msgid "Activate"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2755
+msgid "No plugins were selected to be installed. No action taken."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2757
+msgid "No plugins were selected to be updated. No action taken."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2798
+msgid "No plugins are available to be installed at this time."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2800
+msgid "No plugins are available to be updated at this time."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2906
+msgid "No plugins were selected to be activated. No action taken."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:2932
+msgid "No plugins are available to be activated at this time."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3156
+msgid "Plugin activation failed."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3496
+#, php-format
+msgid "Updating Plugin %1$s (%2$d/%3$d)"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3499
+#, php-format
+msgid "An error occurred while installing %1$s: <strong>%2$s</strong>."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3501
+#, php-format
+msgid "The installation of %1$s failed."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3505
+msgid ""
+"The installation and activation process is starting. This process may take a "
+"while on some hosts, so please be patient."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3507
+#, php-format
+msgid "%1$s installed and activated successfully."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3507
+#: framework/classes/class-tgm-plugin-activation.php:3515
+msgid "Show Details"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3507
+#: framework/classes/class-tgm-plugin-activation.php:3515
+msgid "Hide Details"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3508
+msgid "All installations and activations have been completed."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3510
+#, php-format
+msgid "Installing and Activating Plugin %1$s (%2$d/%3$d)"
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3513
+msgid ""
+"The installation process is starting. This process may take a while on some "
+"hosts, so please be patient."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3515
+#, php-format
+msgid "%1$s installed successfully."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3516
+msgid "All installations have been completed."
+msgstr ""
+
+#: framework/classes/class-tgm-plugin-activation.php:3518
+#, php-format
+msgid "Installing Plugin %1$s (%2$d/%3$d)"
+msgstr ""
+
+#: framework/settings/theme-options.php:14
+msgid "Top Header Settings"
+msgstr ""
+
+#: framework/settings/theme-options.php:22
+#: framework/settings/theme-options.php:23
+msgid "Header Message"
+msgstr ""
+
+#: framework/settings/theme-options.php:30
+msgid "Header Email"
+msgstr ""
+
+#: framework/settings/theme-options.php:37
+msgid "Header Phone"
+msgstr ""
+
+#: framework/settings/theme-options.php:50
+msgid "Logo for Mobile"
+msgstr ""
+
+#: framework/settings/theme-options.php:51
+msgid "Setting Logo For Mobile"
+msgstr ""
+
+#: framework/settings/theme-options.php:62
+msgid "Coppyright"
+msgstr ""
+
+#: framework/settings/theme-options.php:63
+msgid "© Copyright 2018 Tools. All Rights Reserved."
+msgstr ""
+
+#: framework/settings/theme-options.php:72
+msgid "Payment Logo"
+msgstr ""
+
+#: framework/settings/theme-options.php:77
+msgid "Enable Go to top Button"
+msgstr ""
+
+#: framework/widgets/lastest-post.php:8
+msgid "Display the Post."
+msgstr ""
+
+#: framework/widgets/lastest-post.php:10
+msgid "Ovic: Lastest Post"
+msgstr ""
+
+#: framework/widgets/lastest-post.php:12
+msgid "All Category"
+msgstr ""
+
+#: framework/widgets/lastest-post.php:21
+msgid "Latest Posts"
+msgstr ""
+
+#: framework/widgets/lastest-post.php:27
+msgid "Categories"
+msgstr ""
+
+#: framework/widgets/lastest-post.php:33
+msgid "Number of posts to show"
+msgstr ""
+
+#: framework/widgets/products.php:8
+msgid "Display the Product List."
+msgstr ""
+
+#: framework/widgets/products.php:10
+msgid "Ovic: Products"
+msgstr ""
+
+#: framework/widgets/products.php:14
+msgid "Products"
+msgstr ""
+
+#: framework/widgets/products.php:23
+msgid "Number of products to show"
+msgstr ""
+
+#: framework/widgets/products.php:28
+msgid "Show"
+msgstr ""
+
+#: framework/widgets/products.php:30
+msgid "All products"
+msgstr ""
+
+#: framework/widgets/products.php:31
+msgid "Featured products"
+msgstr ""
+
+#: framework/widgets/products.php:32
+msgid "On-sale products"
+msgstr ""
+
+#: framework/widgets/products.php:38
+msgid "Order by"
+msgstr ""
+
+#: framework/widgets/products.php:40
+msgid "Date"
+msgstr ""
+
+#: framework/widgets/products.php:41 woocommerce/cart/cart.php:34
+#: woocommerce/cart/cart.php:83
+msgid "Price"
+msgstr ""
+
+#: framework/widgets/products.php:42
+msgid "Random"
+msgstr ""
+
+#: framework/widgets/products.php:43
+msgid "Sales"
+msgstr ""
+
+#: framework/widgets/products.php:49
+msgctxt "Sorting order"
+msgid "Order"
+msgstr ""
+
+#: framework/widgets/products.php:51
+msgid "ASC"
+msgstr ""
+
+#: framework/widgets/products.php:52
+msgid "DESC"
+msgstr ""
+
+#: framework/widgets/products.php:58
+msgid "Hide free products"
+msgstr ""
+
+#: framework/widgets/products.php:63
+msgid "Show hidden products"
+msgstr ""
+
+#: framework/widgets/store-info.php:8
+msgid "Display the Store Info."
+msgstr ""
+
+#: framework/widgets/store-info.php:10
+msgid "Ovic: Store Info"
+msgstr ""
+
+#: framework/widgets/store-info.php:14
+msgid "Contact Us"
+msgstr ""
+
+#: framework/widgets/store-info.php:19
+msgid "45 Grand Central Terminal New York,NY"
+msgstr ""
+
+#: framework/widgets/store-info.php:20
+msgid "Address"
+msgstr ""
+
+#: framework/widgets/store-info.php:24
+msgid "support@kutethemes.com"
+msgstr ""
+
+#: framework/widgets/store-info.php:29
+msgid "(+800) 123 456 7890"
+msgstr ""
+
+#: framework/widgets/store-info.php:30
+msgid "Phone"
+msgstr ""
+
+#: framework/widgets/store-info.php:45
+msgid "Address:"
+msgstr ""
+
+#: framework/widgets/store-info.php:54
+msgid "Phone:"
+msgstr ""
+
+#: framework/widgets/store-info.php:63
+msgid "Email:"
+msgstr ""
+
+#: import/import.php:23
+msgid "Default Demo"
+msgstr ""
+
+#: template-parts/form-search.php:7
+msgid "All Categories"
+msgstr ""
+
+#: template-parts/form-search.php:33
+msgid "Search"
+msgstr ""
+
+#: template-parts/header-userlink.php:5
+msgid "Login"
+msgstr ""
+
+#: template-parts/header-userlink.php:7
+msgid " or Register"
+msgstr ""
+
+#: template-parts/header-userlink.php:26
+msgid "Hi, "
+msgstr ""
+
+#: templates/blogs/standard.php:10
+msgid "Sticky"
+msgstr ""
+
+#: templates/blogs/standard.php:23
+msgid "..."
+msgstr ""
+
+#: templates/blogs/standard.php:24
+msgid "Read more"
+msgstr ""
+
+#: woocommerce/cart/cart.php:33
+msgid "Items"
+msgstr ""
+
+#: woocommerce/cart/cart.php:35 woocommerce/cart/cart.php:89
+msgid "Quantity"
+msgstr ""
+
+#: woocommerce/cart/cart.php:36 woocommerce/cart/cart.php:106
+msgid "Total"
+msgstr ""
+
+#: woocommerce/cart/cart.php:65
+msgid "Product"
+msgstr ""
+
+#: woocommerce/cart/cart.php:78
+msgid "Available on backorder"
+msgstr ""
+
+#: woocommerce/cart/cart.php:116
+msgid "Remove this item"
+msgstr ""
+
+#: woocommerce/cart/cart.php:135
+msgid "Coupon:"
+msgstr ""
+
+#: woocommerce/cart/cart.php:135
+msgid "Coupon code"
+msgstr ""
+
+#: woocommerce/cart/cart.php:135
+msgid "Apply coupon"
+msgstr ""
+
+#: woocommerce/cart/cart.php:140
+msgid "Update cart"
+msgstr ""
+
+#: woocommerce/global/quantity-input.php:34
+msgctxt "Product quantity input tooltip"
+msgid "Qty"
+msgstr ""

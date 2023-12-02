@@ -1,0 +1,803 @@
+<?php
+
+add_action( 'widgets_init', 'register_widgets' );
+
+
+function register_widgets()
+{
+	register_sidebar( array(
+		'name'          => esc_html__( 'Shop Widget Area After Header', 'tools' ),
+		'id'            => 'shop-widget-area-after-header',
+		'description'   => esc_html__( 'Add widgets here to appear in your sidebar.', 'tools' ),
+		'before_widget' => '<div id="%1$s" class="widget %2$s">',
+		'after_widget'  => '</div>',
+		'before_title'  => '<h2 class="widgettitle">',
+		'after_title'   => '<span class="arow"></span></h2>',
+	));
+}
+
+add_action( 'wp_enqueue_scripts', 'tool_child_enqueue_styles' );
+function tool_child_enqueue_styles()
+{
+	wp_enqueue_style( 'parent-style', get_theme_file_uri( '/style.css' ) );
+}
+
+
+wp_register_script( 'base.js', get_theme_file_uri('/js/base.js'), array( 'jquery' ), null, true );
+wp_enqueue_script( 'base.js' );
+
+
+
+remove_action( 'woocommerce_variable_add_to_cart', 'woocommerce_variable_add_to_cart', 30 );
+remove_action( 'woocommerce_shop_loop_item_title', 'woocommerce_template_loop_product_title', 10);
+
+#remove_action( 'woocommerce_shop_loop_item_title', 'woocommerce_template_loop_product_title', 10 );
+#add_action( 'woocommerce_before_shop_loop_item_title', 'woocommerce_template_loop_product_title', 5 );
+
+#remove_action( 'woocommerce_shop_loop_item_title', 'woocommerce_template_loop_product_title', 10 );
+#add_action( 'woocommerce_before_shop_loop_item_title', 'woocommerce_template_loop_product_title', 5 );
+
+#remove_action( 'woocommerce_shop_loop_item_title', 'woocommerce_template_loop_product_title', 10 );
+#add_action( 'woocommerce_shop_loop_item_title', 'woocommerce_template_single_title', 5 );
+
+
+add_action( 'table_variable', 'DuidTableVariable', 30 );
+add_filter( 'wpseo_metadesc', 'set_wpseo_metadesc' );
+add_filter( 'wpseo_title', 'set_wpseo_title' );
+add_filter( 'woocommerce_get_breadcrumb', 'change_breadcrumb' );
+
+
+
+#add_action('woocommerce_shop_loop_item_title', 'woocommerce_template_loop_product_title', 10 );
+
+/*function woocommerce_template_loop_product_title() 
+{
+    echo '<h3 class="product-name product_title"><a href="'.get_the_permalink().'">' . get_the_title() . '</a></h3>';
+}*/
+
+
+
+function DuidTableVariable()
+{
+	global $woocommerce, $product, $post;
+
+		$head_rus = array(
+			'tyre_width'	=> 'Ширина',
+			'tyre_profile'	=> 'Профиль',
+			'tyre_rim'	=> 'Диаметр',
+			'load_index' 	=> 'Индекс нагрузки',
+			'speed_index' 	=> 'Индекс скорости',
+		);
+
+		$temp_head 	= false;
+		$temp_body 	= false;
+
+	if($product->is_type( 'variable' ))
+	{
+		$varattr 	= $product->get_variation_attributes();
+
+		$temp_head['name'] = "Наименование";
+
+
+/*		foreach($varattr as $attr_key => $attr_values)
+		{
+			$taxonomy_label = wc_attribute_label(str_replace( 'attribute_', '',  $attr_key), $product );
+			$temp_head[$attr_key] = $head_rus[$taxonomy_label];
+		}*/
+
+		$temp_head['price'] = "Цена";
+		$temp_head['tocart'] = "На складе";
+
+
+		$available_variations 	= $product->get_available_variations();
+		$temp_body		= array();
+
+		foreach ($available_variations as $key => $value)
+		{
+			$product_variation = new WC_Product_Variation($value['variation_id']);
+			$url = $product_variation->get_permalink(  );
+
+/*			foreach($product_variation->get_variation_attributes() as $variation_attributes_key => $variation_attributes)
+			{
+				$taxonomy = str_replace( 'attribute_', '', urldecode( $variation_attributes_key ) );
+				$temp_body[$value['variation_id']][$taxonomy] = get_term_by( 'slug', $variation_attributes, $taxonomy )->name;
+			}*/
+#var_dump($product_variation);exit;
+
+			$temp_body[$value['variation_id']]['name'] = '<a href="'.$url.'">'.$product_variation->get_description().'</a>';
+
+			$temp_body[$value['variation_id']]['price'] = $product_variation->get_price_html();
+			$temp_body[$value['variation_id']]['is_in_stock'] = $value['is_in_stock'];
+
+			if($value['is_in_stock'])
+			{
+				$temp_body[$value['variation_id']]['tocart'] = '<form class="cart" action="'.esc_url( $product->add_to_cart_url()).'" method="post" enctype=\'multipart/form-data\'>';
+
+				if(!empty($value['attributes']))
+				{
+					foreach ($value['attributes'] as $attr_key => $attr_value)
+					{
+						$temp_body[$value['variation_id']]['tocart'] .='<input type="hidden" name="'.$attr_key.'" value="'.$attr_value.'">';
+					}
+				}
+
+				$temp_body[$value['variation_id']]['tocart'] .= '<button type="submit" class="button product_type_simple  single_add_to_cart_button  add_to_cart_button ">'.esc_html( $product->single_add_to_cart_text() ).'</button>'.
+					'<input type="hidden" name="variation_id" value="'.$value['variation_id'].'" />'.
+					'<input type="hidden" name="product_id" value="'.esc_attr( $post->ID ).'" />'.
+					'<input type="hidden" name="add-to-cart" value="'.esc_attr( $post->ID ).'" />'.
+					'<input type="hidden" name="quantity" value="1" />';
+				$temp_body[$value['variation_id']]['tocart'] .= '</form>';
+			} else {
+				$temp_body[$value['variation_id']]['tocart'] = '<p class="stock out-of-stock">'.__( 'This product is currently out of stock and unavailable.', 'woocommerce' ).'</p>';
+//				$temp_body[$value['variation_id']]['tocart'] = ob_get_clean();
+			}
+		}
+#var_dump($temp_body);
+#exit;
+
+		$out .= '<table><thead><tr><td>'.implode("</td><td>", $temp_head).'</td></tr></thead><tbody>';
+
+		$allowed = array_keys($temp_head);
+
+		foreach($temp_body as $td)
+		{
+			uksort($td, function($a, $b) use ($allowed)
+			{
+				return array_search($a, $allowed) - array_search($b, $allowed);
+			});
+
+			$is_in_stock = $td['is_in_stock'];
+			unset($td['is_in_stock']);
+
+			if($is_in_stock)
+			{
+				$out .="<tr><td>".implode("</td><td>", $td)."</td></tr>";
+			}else	$out .="<tr style='opacity:0.4;'><td>".implode("</td><td>", $td)."</td></tr>";
+		}
+
+		echo $out .= '</tbody></table>';
+	}else
+	{
+
+		$variable		= getVariableID($post->ID);
+        	$product_variation	= new WC_Product_Variation($variable);
+
+		$varattr 		= $product_variation->get_variation_attributes();
+
+		$temp_head['name'] = "Наименование";
+
+
+/*		foreach($varattr as $attr_key => $attr_values)
+		{
+			$taxonomy_label = wc_attribute_label(str_replace( 'attribute_', '',  $attr_key), $product );
+			$temp_head[$attr_key] = $head_rus[$taxonomy_label];
+		}*/
+
+		$temp_head['price'] = "Цена";
+		$temp_head['tocart'] = "На складе";
+
+
+#		$available_variations 	= $product_variation->get_available_variations();
+		$temp_body		= array();
+
+
+
+		$temp_body[$variable]['name'] = $product_variation->get_description();
+
+
+/*		foreach($product_variation->get_variation_attributes() as $variation_attributes_key => $variation_attributes)
+		{
+			$taxonomy = str_replace( 'attribute_', '', urldecode( $variation_attributes_key ) );
+			$temp_body[$variable][$taxonomy] = get_term_by( 'slug', $variation_attributes, $taxonomy )->name;
+		}*/
+
+		$temp_body[$variable]['price'] = $product_variation->get_price_html();
+
+#var_dump($temp_body);
+
+#var_dump($product_variation);exit;
+
+/*
+ob_start();?>
+555
+				<form class="cart" action="<?php echo esc_url( $product->add_to_cart_url() ); ?>" method="post" enctype='multipart/form-data'>
+				<?php
+					if(!empty($value['attributes']))
+					{
+						foreach ($value['attributes'] as $attr_key => $attr_value)
+						{?>
+							<input type="hidden" name="<?php echo $attr_key?>" value="<?php echo $attr_value?>">
+						<?php
+						}
+					}?>
+					<button type="submit" class="button product_type_simple  single_add_to_cart_button  add_to_cart_button "><?php echo esc_html( $product->single_add_to_cart_text() ); ?></button>
+					<input type="hidden" name="variation_id" value="<?php echo $variable?>" />
+					<input type="hidden" name="product_id" value="<?php echo esc_attr( $post->ID ); ?>" />
+					<input type="hidden" name="add-to-cart" value="<?php echo esc_attr( $post->ID ); ?>" />
+					<input type="hidden" name="quantity" value="1" />
+				</form>
+
+<?php
+				$temp_body[$variable]['tocart'] = ob_get_clean();
+*/
+			
+		if($product_variation->stock_status == 'outofstock')
+		{
+			$temp_body[$variable]['is_in_stock'] = false;
+		}else
+		{
+			$temp_body[$variable]['is_in_stock'] = true;
+		}
+
+
+		if($temp_body[$variable]['is_in_stock'] === false)
+		{
+			$temp_body[$variable]['tocart'] = '<p class="stock out-of-stock">'.__( 'This product is currently out of stock and unavailable.', 'woocommerce' ).'</p>';
+		}else
+		{
+			$temp_body[$variable]['tocart'] = '<form class="cart" action="'.esc_url( $product->add_to_cart_url()).'" method="post" enctype=\'multipart/form-data\'>';
+
+/*			if(!empty($value['attributes']))
+			{
+				foreach ($value['attributes'] as $attr_key => $attr_value)
+				{
+					$temp_body[$variable]['tocart'] .='<input type="hidden" name="'.$attr_key.'" value="'.$attr_value.'">';
+				}
+			}*/
+		
+			$temp_body[$variable]['tocart'] .= '<button type="submit" class="button product_type_simple  single_add_to_cart_button  add_to_cart_button ">'.esc_html( $product->single_add_to_cart_text() ).'</button>'.
+			'<input type="hidden" name="variation_id" value="'.$variable.'" />'.
+				'<input type="hidden" name="product_id" value="'.esc_attr( $post->ID ).'" />'.
+				'<input type="hidden" name="add-to-cart" value="'.esc_attr( $post->ID ).'" />'.
+				'<input type="hidden" name="quantity" value="1" />';
+			$temp_body[$variable]['tocart'] .= '</form>';
+		}
+
+
+		$out .= '<table><thead><tr><td>'.implode("</td><td>", $temp_head).'</td></tr></thead><tbody>';
+
+		$allowed = array_keys($temp_head);
+
+		foreach($temp_body as $k => $td)
+		{
+			uksort($td, function($a, $b) use ($allowed)
+			{
+				return array_search($a, $allowed) - array_search($b, $allowed);
+			});
+
+			$is_in_stock = $td['is_in_stock'];
+			unset($td['is_in_stock']);
+
+			if($is_in_stock)
+			{
+				$out .="<tr><td>".implode("</td><td>", $td)."</td></tr>";
+			}else	$out .="<tr style='opacity:0.4;'><td>".implode("</td><td>", $td)."</td></tr>";
+
+
+#			$out .="<tr><td>".implode("</td><td>", $td)."</td></tr>";
+		}
+
+		echo $out .= '</tbody></table>';
+	}
+}
+###################################
+
+$TemplateMeta = [
+	"variable_shini_wpseo_title"	=> "%%category%% %%title%% %%page%% размер: %%pa_tyre_width%%/%%pa_tyre_profile%% %%pa_tyre_rim%% %%pa_load_index%% %%pa_speed_index%% цена %%price%% руб",
+	"variable_shini_product_title"	=> "%%title%% %%pa_tyre_width%%/%%pa_tyre_profile%% %%pa_tyre_rim%% %%pa_load_index%% %%pa_speed_index%%",
+	"variable_shini_wpseo_desc"	=> "%%category%% %%title%%  размер: %%pa_tyre_width%%/%%pa_tyre_profile%% %%pa_tyre_rim%%  %%pa_load_index%% %%pa_speed_index%%  для спецтехники. Цена  %%title%% , отзывы о шине. Купить шины %%title%% в Москве и доставкой в города России.",
+
+
+	"shini_wpseo_title"	=> "%%category%% %%title%% цена от %%price%% руб",
+	"shini_product_title"	=> "%%title%% цена от %%price%% руб",
+	"shini_wpseo_desc"	=> "%%category%% %%title%%  для спецтехники. Цена от %%title%% , отзывы о шине. Купить шины %%title%% в Москве и доставкой в города России.",
+
+
+
+	"variable_camera_wpseo_title"	=> "Камеры %%title%% размер: %%pa_tyre_width%%/%%pa_tyre_profile%% %%pa_tyre_rim%% цена %%price%% руб",
+	"variable_camera_product_title"	=> "%%title%% %%pa_tyre_width%%/%%pa_tyre_profile%% %%pa_tyre_rim%% %%pa_load_index%% %%pa_speed_index%%",
+	"variable_camera_wpseo_desc"	=> "%%category%% %%title%%  размер: %%pa_tyre_width%%/%%pa_tyre_profile%% %%pa_tyre_rim%% %%pa_load_index%% %%pa_speed_index%% для спецтехники. Цена  %%title%% , отзывы о шине. Купить шины %%title%% в Москве и доставкой в города России.",
+
+	"camera_wpseo_title"	=> "Камеры %%title%% размер: %%pa_tyre_width%%/%%pa_tyre_profile%% %%pa_tyre_rim%% цена %%price%% руб",
+	"camera_product_title"	=> "%%title%% %%pa_tyre_width%%/%%pa_tyre_profile%% %%pa_tyre_rim%% %%pa_load_index%% %%pa_speed_index%%",
+	"camera_wpseo_desc"	=> "%%category%% %%title%%  размер: %%pa_tyre_width%%/%%pa_tyre_profile%% %%pa_tyre_rim%% %%pa_load_index%% %%pa_speed_index%% для спецтехники. Цена  %%title%% , отзывы о шине. Купить шины %%title%% в Москве и доставкой в города России."
+
+];
+
+
+function find_matching_product_variation_id($product_id, $attributes)
+{
+	return (new \WC_Product_Data_Store_CPT())->find_matching_product_variation(new \WC_Product($product_id), $attributes);
+}
+
+
+		/**
+		 * Hook: woocommerce_single_product_summary.
+		 *
+		 * @hooked woocommerce_template_single_title - 5
+		 * @hooked woocommerce_template_single_rating - 10
+		 * @hooked woocommerce_template_single_price - 10
+		 * @hooked woocommerce_template_single_excerpt - 20
+		 * @hooked woocommerce_template_single_add_to_cart - 30
+		 * @hooked woocommerce_template_single_meta - 40
+		 * @hooked woocommerce_template_single_sharing - 50
+		 * @hooked WC_Structured_Data::generate_product_data() - 60
+		 */
+#		do_action( 'woocommerce_single_product_summary' );
+function woocommerce_template_single_price()
+{
+	global $post, $product;
+
+	$attr = [];
+
+	if($_GET)
+	{
+		foreach($_GET as $key => $value)
+		{
+			if(strpos($key, 'attribute_pa_') === 0)
+			{
+				$attr[$key] = sanitize_text_field($value);
+			}
+		}
+	}
+
+	$Data = find_matching_product_variation_id($post->ID, $attr);
+
+	if($Data)
+	{
+		$Data = is_array($Data)?$Data:array($Data);
+		$product = wc_get_product( $Data[0] );
+	}
+
+?>
+	<p class="<?php echo esc_attr( apply_filters( 'woocommerce_product_price_class', 'price' ) );?>"><?php echo $product->get_price_html(); ?></p>
+<?php
+
+}
+
+function woocommerce_template_single_title()
+{
+	global $post, $TemplateMeta;
+
+	if(is_product())
+	{
+		$prefix 	= '';
+		$variableID 	= getVariableID($post->ID);
+
+
+		if($variableID > 0)
+		{
+			$prefix = 'variable_';
+		}
+	}
+
+
+	$title = stripslashes( $post->post_title );
+
+	if( is_product() AND has_term( 'shini', 'product_cat' ) )
+	{
+		$title = du_product_title($TemplateMeta[$prefix.'shini_product_title']);
+	}
+
+	if( is_product() AND has_term( 'camera', 'product_cat' ) )
+	{
+		$title = du_product_title($TemplateMeta[$prefix.'camera_product_title']);
+	}
+
+	echo "<h1 class=\"product_title entry-title\">{$title}</h1>";
+}
+
+function set_wpseo_metadesc($wpseo_replace_vars)
+{
+	global $TemplateMeta, $post;
+
+	if(is_product())
+	{
+		$prefix 	= '';
+		$variableID 	= getVariableID($post->ID);
+
+
+		if($variableID > 0)
+		{
+			$prefix = 'variable_';
+		}
+	}
+
+	if( is_product() AND has_term( 'shini', 'product_cat' ) )
+	{
+		$wpseo_replace_vars = du_wpseo_metadesc($TemplateMeta[$prefix.'shini_wpseo_desc']);
+	}
+
+	if( is_product() AND has_term( 'camera', 'product_cat' ) )
+	{
+		$wpseo_replace_vars = du_wpseo_metadesc($TemplateMeta[$prefix.'camera_wpseo_desc']);
+	}
+
+	return $wpseo_replace_vars;
+}
+
+function du_wpseo_metadesc($template)
+{
+	global $post;
+
+	$replacements 	= [];
+#	$product 	= wc_get_product( $post );
+
+	$replacements = du_Replace($template, $post);
+
+
+	if ( is_array( $replacements ) && $replacements !== [] ) {
+		$template = str_replace( array_keys( $replacements ), array_values( $replacements ), $template );
+	}
+
+	return $template;
+}
+
+function getVariableID($ID)
+{
+	$attr = [];
+
+	if($_GET)
+	{
+		foreach($_GET as $key => $value)
+		{
+			if(strpos($key, 'attribute_pa_') === 0)
+			{
+				$attr[$key] = sanitize_text_field($value);
+			}
+		}
+	}
+
+	return	find_matching_product_variation_id($ID, $attr);
+}
+
+function set_wpseo_title($title)
+{
+	global $TemplateMeta, $post;
+
+
+	if(is_product())
+	{
+		$prefix 	= '';
+		$variableID 	= getVariableID($post->ID);
+
+
+		if($variableID > 0)
+		{
+			$prefix = 'variable_';
+		}
+	}
+
+
+#	$product 	= wc_get_product( $post );
+
+	if($variableID > 0)
+	{
+		$prefix = 'variable_';
+	}
+
+	if( is_product() AND has_term( 'shini', 'product_cat' ) )
+	{
+		$title = du_wpseo_title($TemplateMeta[$prefix.'shini_wpseo_title']);
+	}
+
+	if( is_product() AND has_term( 'camera', 'product_cat' ) )
+	{
+		$title = du_wpseo_title($TemplateMeta[$prefix.'camera_wpseo_title']);
+	}
+
+	$title = esc_html( wp_strip_all_tags( stripslashes( $title ), true ) );
+
+	return $title;
+}
+
+function du_wpseo_title($template)
+{
+	global $post;
+
+
+	$replacements 	= [];
+#	$product 	= wc_get_product( $post );
+
+	$replacements = du_Replace($template, $post);
+
+	if ( is_array( $replacements ) && $replacements !== [] ) {
+		$template = str_replace( array_keys( $replacements ), array_values( $replacements ), $template );
+	}
+
+	return $template;
+}
+
+function du_product_title($template)
+{
+	global $post;
+
+	$replacements = [];
+#	$product 	= wc_get_product( $post );
+
+	$replacements = du_Replace($template, $post);
+
+	if ( is_array( $replacements ) && $replacements !== [] ) {
+		$template = str_replace( array_keys( $replacements ), array_values( $replacements ), $template );
+	}
+
+	return $template;
+}
+
+function du_Replace($template, $post)
+{
+
+	$postID 	= $post->ID;
+	$variableID 	= getVariableID($post->ID);
+
+	if($variableID > 0)
+	{
+		$postID = $variableID;
+	}
+
+
+	if ( preg_match_all( '`%%(.*)%%`isU', $template, $matches ) )//(%%single)?
+	{
+		foreach($matches[1] as $k => $var)
+		{
+			switch($var)
+			{
+				case 'title':
+					$replacement = stripslashes( $post->post_title );
+				break;
+				case 'category':
+					$terms = get_the_terms ( $postID, 'product_cat' );
+					$replacement = stripslashes( $terms[1]->name );
+				break;
+				case 'price':
+					$product = wc_get_product( $postID );
+					$replacement = $product->get_price();
+				break;
+
+
+				default:
+					$terms = get_the_terms( $postID, $var );
+
+					if( !is_wp_error( $terms ) )
+					{
+						if($terms[0]->name)
+						{
+							$replacement = $terms[0]->name;
+						}else	$replacement = '';
+
+					}else	$replacement = '';
+				break;
+
+			}
+#				$replacements[ "%%".$var."%%" ] = $replacement;
+
+			if ( isset( $replacement ) ) {
+				$replacements[ "%%".$var."%%" ] = $replacement;
+			}
+			unset( $replacement);
+		}
+	}
+	return $replacements;
+}
+
+function change_breadcrumb( $crumbs )
+{
+	if(!is_product())
+	{
+		return $crumbs;
+	}
+
+	end($crumbs);
+	$key = key($crumbs);
+	reset($crumbs);
+
+	$crumbs[$key][0] = du_product_title($crumbs[$key][0]);
+
+	return $crumbs;
+}
+
+// remove the filter 
+/*remove_filter( 'woocommerce_products_widget_query_args', 'filter_woocommerce_products_widget_query_args', 10, 1 );
+
+add_filter( 'woocommerce_products_widget_query_args', 'filter_function_name_4175', 10, 1 );
+
+function filter_function_name_4175( $query_args )
+{
+#echo "";
+	$product_visibility_term_ids = wc_get_product_visibility_term_ids();
+echo "$$$$###";
+var_dump($product_visibility_term_ids);
+#       $query_args['tax_query'][] = array(array('taxonomy' => 'product_visibility', 'field' => 'term_taxonomy_id', 'terms' => $product_visibility_term_ids['outofstock'], 'operator' => 'NOT IN'));
+#echo "$$$$###";var_dump($query_args);
+
+		$product_ids_on_sale = wc_get_product_ids_on_sale();
+#             $product_ids_on_sale[] = 0;
+#             $query_args['post__in'] = $product_ids_on_sale;
+    $query_args['post__in'] = 8043;
+
+var_dump($query_args);
+
+	return $query_args;
+}
+   */
+/*add_filter( 'woocommerce_products_widget_query_args', function( $query_args ){
+    // Set HERE your product category slugs
+    $categories = array( 'music', 'posters' );
+
+    $query_args['tax_query'] = array( array(
+        'taxonomy' => 'product_cat',
+        'field'    => 'slug',
+        'terms'    => $categories,
+    ));
+
+    return $query_args;
+}, 10, 1 );*/
+
+#*remove_filter('woocommerce_product_query_tax_query', '', 10);
+/*	add_filter('woocommerce_product_query_tax_query', function($tax_query, $_this)
+	{
+		$product_visibility_term_ids = wc_get_product_visibility_term_ids();
+#var_dump($product_visibility_term_ids);
+
+                foreach ($tax_query as $key => $tax)
+		{
+			if (isset($tax['taxonomy']) AND $tax['taxonomy'] == 'product_visibility')
+			{
+                        	unset($tax_query[$key]);
+
+#       $tax_query[$key] = array('taxonomy' => 'product_visibility', 'field' => 'term_taxonomy_id', 'terms' => $product_visibility_term_ids['outofstock'], 'operator' => 'NOT IN');
+
+
+			}
+		}
+
+
+
+
+#       $tax_query['product_visibility'] = array('taxonomy' => 'product_visibility', 'field' => 'term_taxonomy_id', 'terms' => $product_visibility_term_ids['outofstock'], 'operator' => 'NOT IN');
+
+#var_dump($tax_query);
+
+
+#                $tax_query = $this->product_visibility_not_in($tax_query, $this->generate_visibility_keys(true));
+                return $tax_query;
+	}, 10, 2);*/
+
+
+/*add_action( 'pre_get_posts', 'iconic_hide_out_of_stock_products2' );
+
+function iconic_hide_out_of_stock_products2( $q ) {
+
+    if ( ! $q->is_main_query() ) return;
+    if ( ! $q->is_post_type_archive() ) return;
+    if ( is_admin() ) return;
+
+    $meta_query = (array) $q->get('meta_query');
+
+    $meta_query[] = array(
+        'key'       => '_stock_status',
+        'value'     => 'outofstock',
+        'compare'   => 'NOT IN'
+    );
+
+    $q->set( 'meta_query', $meta_query );
+
+    remove_action( 'pre_get_posts', 'iconic_hide_out_of_stock_products' );
+
+}*/
+
+
+#add_action( 'pre_get_posts', 'iconic_hide_out_of_stock_products' );
+
+/*function iconic_hide_out_of_stock_products( $q )
+{
+	$continue = false;
+
+	if($_GET)
+	{
+		foreach($_GET as $key => $value)
+		{
+			if(strpos($key, 'filter_tyre_') === 0)
+			{
+				$continue = true;
+			}
+		}
+	}
+#echo '5555';
+
+#	if($continue == false)
+#	{
+#		return;
+#	}
+
+#	if ( ! $q->is_main_query() ) return;
+#	if ( ! $q->is_post_type_archive() ) return;
+#	if ( is_admin() ) return;
+
+	$meta_query = (array) $q->get('meta_query');
+
+	$meta_query[] = array(
+		'key'       => '_stock_status',
+		'value'     => 'outofstock',
+		'compare'   => 'NOT IN'
+	);
+
+	$q->set( 'meta_query', $meta_query );
+
+	remove_action( 'pre_get_posts', 'iconic_hide_out_of_stock_products' );
+}
+
+
+                                                               */
+/*add_action( 'pre_get_posts', 'iconic_hide_out_of_stock_products' );
+
+function iconic_hide_out_of_stock_products( $q ) {
+
+    if ( ! $q->is_main_query() || is_admin() ) {
+        return;
+    }
+
+    if ( $outofstock_term = get_term_by( 'name', 'outofstock', 'product_visibility' ) ) {
+
+        $tax_query = (array) $q->get('tax_query');
+
+        $tax_query[] = array(
+            'taxonomy' => 'product_visibility',
+            'field' => 'term_taxonomy_id',
+            'terms' => array( $outofstock_term->term_taxonomy_id ),
+            'operator' => 'NOT IN'
+        );
+
+        $q->set( 'tax_query', $tax_query );
+
+    }
+
+    remove_action( 'pre_get_posts', 'iconic_hide_out_of_stock_products' );
+
+} */
+
+add_filter( 'woocommerce_product_query_meta_query', 'filter_product_query_meta_query', 10, 2 );
+
+function filter_product_query_meta_query( $meta_query, $query ) 
+{
+	$continue = false;
+
+	if($_GET)
+	{
+		foreach($_GET as $key => $value)
+		{
+			if(strpos($key, 'filter_tyre_') === 0)
+			{
+				$continue = true;
+			}
+		}
+	}
+
+	if($continue === true)
+	{
+	        $meta_query[] = array(
+        	    'key'     => '_stock_status',
+	            'value'   => 'outofstock',
+        	    'compare' => '!=',
+	        );
+	}
+
+
+	return $meta_query;
+}
+
+
+/*if($_POST['action'] == 'yith_load_product_quick_view')
+{
+$_POST['product_id'] = "12703";
+var_dump($_POST);
+}
+  */
+
+#			remove_action( 'woocommerce_product_thumbnails', 'woocommerce_show_product_thumbnails', 20 );
+
+
+
+#add_action( 'wp_ajax_yith_load_product_quick_view', 'tytyty' );
+#add_action( 'wp_ajax_nopriv_yith_load_product_quick_view', 'tytyty' );
+#add_action( 'wp_ajax_nopriv_yith_load_product_quick_view', array( $this, 'yith_load_product_quick_view_ajax' ) );
