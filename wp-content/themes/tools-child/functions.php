@@ -2199,10 +2199,12 @@ function generateProductXML($product_id, $doc, $channel, $productParent = false,
     $description->appendChild($description_cdata);
     $item->appendChild($description);
 
-    $item_group_id = $doc->createElement('g:item_group_id');
-    $item_group_id_cdata = $doc->createCDATASection($product->get_id());
-    $item_group_id->appendChild($item_group_id_cdata);
-    $item->appendChild($item_group_id);
+    if ($productParent){
+        $item_group_id = $doc->createElement('g:item_group_id');
+        $item_group_id_cdata = $doc->createCDATASection($data['product_id']);
+        $item_group_id->appendChild($item_group_id_cdata);
+        $item->appendChild($item_group_id);
+    }
 
     $link = $doc->createElement('link');
     $link_cdata = $doc->createCDATASection(get_custom_product_url($product_id));
@@ -2301,6 +2303,38 @@ function generateProductXML($product_id, $doc, $channel, $productParent = false,
         return false;
     }
 }
+function generateProductXMLParrent($product_id, $doc)
+{
+    $product = wc_get_product($product_id);
+    $item = $doc->createElement('item');
+    $description_text = $product->get_short_description();
+    preg_match_all('/<a.*?>(.*?)<\/a>/', $description_text, $matches);
+    foreach ($matches[0] as $index => $match) {
+        $replacement = $matches[1][$index];
+        $description_text = str_replace($match, $replacement, $description_text);
+    }
+    $product_type_text = get_product_type_hierarchy($product_id);
+    if (strpos($product_type_text, '>') !== false) {
+        // Разделение строки по символу ">"
+        $categories = explode('>', $product_type_text);
+        if (is_array($categories) && !empty($categories)) {
+            $last_category = trim(end($categories));
+        }else{
+            $last_category = trim($product_type_text);
+        }
+    } else {
+        $last_category = trim($product_type_text);
+    }
+    $brand_text = getBrandText($product);
+    $product_id = $product->get_id();
+    return [
+        'description_text' => $description_text,
+        'product_type_text' => $product_type_text,
+        'last_category' => $last_category,
+        'brand_text' => $brand_text,
+        'product_id' => $product_id,
+    ];
+}
 
 function my_custom_woocommerce_template_loop_product_title() {
 	global $product;
@@ -2309,7 +2343,7 @@ function my_custom_woocommerce_template_loop_product_title() {
 remove_action( 'woocommerce_shop_loop_item_title', 'woocommerce_template_loop_product_title', 10 );
 add_action( 'woocommerce_shop_loop_item_title', 'my_custom_woocommerce_template_loop_product_title', 10 );
 function generate_google_merchant_feed() {
-ini_set('display_errors', 0);
+    ini_set('display_errors', 1);
     $args = array(
         'post_type' => 'product',
         'posts_per_page' => -1,
@@ -2362,27 +2396,36 @@ ini_set('display_errors', 0);
 
     $count = 0;
     foreach ($query->posts as $product_id) {
-        $data = generateProductXML($product_id, $doc, $channel, false, false);
         // Если у продукта есть вариации, обрабатываем каждую
         $product = wc_get_product($product_id);
-        $count++;
+
+        $data = generateProductXMLParrent($product_id, $doc);
         if ($product->is_type('variable')) {
+            $has_variations = false;
             foreach ($product->get_children() as $variation_id) {
                 $variation = wc_get_product($variation_id);
-
-                // Проверка наличия вариации
                 if ($variation->is_in_stock()) {
-                    // Обработка вариации
+                    $has_variations = true;
+                    // Обработка вариации с указанием item_group_id равным ID родительского товара
                     generateProductXML($variation_id, $doc, $channel, true, $data);
                     $count++;
                 }
             }
+            if (!$has_variations) {
+                // Если вариаций нет, выводим основной продукт без item_group_id
+                generateProductXML($product_id, $doc, $channel, false, null);
+                $count++;
+            }
+        } else {
+            // Для простых товаров выводим без указания item_group_id
+            generateProductXML($product_id, $doc, $channel, false, null);
+            $count++;
         }
     }
 
     $feed_filename = ABSPATH . 'google-merchant-feed.xml';
     file_put_contents($feed_filename, $doc->saveXML());
-    log_to_file("Google Merchant Feed generated successfully. Count products in xml file:".$count);
+    log_to_file("Google Merchant Feed generated successfully. Count products in xml file: " . $count);
     return $count;
 }
 
