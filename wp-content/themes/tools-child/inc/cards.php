@@ -73,6 +73,15 @@ class CustomWooCommerceHooks {
         //echo '<h3 class="product-name product_title"><a href="' . get_custom_product_url($post->ID) . '">' . $desc . '</a></h3>';
     }
 
+    public function getTitle($post){
+        $title = get_post_meta( $post->ID, '_variation_description', true );
+
+        if(empty($title))
+        {
+            $title = get_the_title();
+        }
+        return $title;
+    }
     /**
      * Выводит изображение товара с кастомным URL.
      */
@@ -88,18 +97,23 @@ class CustomWooCommerceHooks {
         }
 
         $image_html = woocommerce_get_product_thumbnail();
-        $custom_title = 'Ваш кастомный title'; // Здесь задайте свой title
-        $custom_alt = 'Ваш кастомный alt'; // Здесь задайте свой alt
+        $title = $this->getTitle($post);
+        $custom_title = $title;
+        $custom_alt = $title;
 
         // Изменяем HTML изображения, добавляя кастомные title и alt
         $image_html = preg_replace('/(alt="[^"]*")/', 'alt="' . esc_attr($custom_alt) . '"', $image_html);
         $image_html = preg_replace('/(title="[^"]*")/', 'title="' . esc_attr($custom_title) . '"', $image_html);
 
-        echo $image_html;
+        $uri = get_custom_product_url($post->ID);
 
+        $result = '<a class="thumb-link woocommerce-product-gallery__image" href="' . esc_url($uri) . '" title="' . esc_attr($custom_title) . '">';
+        $result .= '<figure>';
+        $result .= $image_html;
+        $result .= '</figure>';
+        $result .= '</a>';
 
-
-
+        echo $result;
 
         //echo '<a href="' . get_custom_product_url($post->ID) . '" title="' . $post->post_title . '">' . woocommerce_get_product_thumbnail() . '</a>';
     }
@@ -120,7 +134,8 @@ class CustomWooCommerceHooks {
 
         $uri = get_permalink () ;
 
-        echo '<h3 class="product-name product_title"><a href="'.$uri.'">'.$desc.'</a></h3>';    }
+        echo '<h3 class="woocommerce-loop-product__title"><a href="'.$uri.'" title="'.$desc
+            .'">'.$desc.'</a></h3>';    }
 
     /**
      * Выводит изображение товара с кастомным URL для специальных категорий.
@@ -156,8 +171,15 @@ class CustomWooCommerceHooks {
 
         // Используем get_permalink() без дополнительных параметров
         $uri = get_permalink();
+        $desc = get_post_meta( $post->ID, '_variation_description', true );
 
-        echo '<a class="thumb-link woocommerce-product-gallery__image" href="' . esc_url($uri) . '">';
+        if(empty($desc))
+        {
+            $desc = get_the_title();
+        }
+        echo '<a class="thumb-link woocommerce-product-gallery__image" href="' . esc_url($uri)
+            . '" title="'.$desc
+            .'">';
         echo '<figure>';
         echo wp_specialchars_decode($image_thumb['img']);
         echo '</figure>';

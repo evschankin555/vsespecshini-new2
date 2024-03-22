@@ -6,6 +6,7 @@ if( is_single()){
 ?>
 <?php if ( is_active_sidebar( $tools_blog_used_sidebar ) ) : ?>
     <div id="widget-area" class="widget-area blog-sidebar">
+
         <?php dynamic_sidebar( $tools_blog_used_sidebar ); ?>
     </div><!-- .widget-area -->
 <?php endif; ?>

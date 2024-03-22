@@ -311,7 +311,7 @@ the_permalink()
 */
 				$uri = add_query_arg ('pid', $post->ID, get_permalink ()) ;
 
-				echo '<h3 class="product-name product_title"><a href="'.$uri.'">'.$desc.'</a></h3>';
+				echo '<h3 class="woocommerce-loop-product__title"><a href="'.$uri.'">'.$desc.'</a></h3>';
 			}
 
 			function woocommerce_template_loop_product_thumbnail()

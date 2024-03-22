@@ -28,6 +28,7 @@ Disallow: */embed*
 Disallow: *max_price*
 Disallow: *uncategorized*
 Disallow: *?ovic_shop_list_style=grid*
+Disallow: /product-category/shini/filters/tyre_width/*/tyre_profile/*/tyre_rim/*/page/*
 Clean-param: add-to-cart
 Clean-param: min_price&max_price
 Clean-param: action&yith-woocompare-view-table&iframe
@@ -38,6 +39,15 @@ Clean-param: ovic_shop_list_style
 Clean-param: action&yith-woocompare-view-table&iframe
 Clean-param: ovic_shop_product_style
 Clean-param: ovic_sidebar_shop_layout&ovic_woo_bg_items
+Clean-param: filter_tyre_rim&filter_tyre_width&orderby
+Clean-param: filter_tyre_rim&filter_tyre_profile&filter_tyre_width
+Clean-param: attribute_pa_tyre_width&attribute_pa_tyre_profile&attribute_pa_tyre_rim
+Clean-param: attribute_pa_tyre_width&attribute_pa_tyre_profile&attribute_pa_tyre_rim&attribute_pa_load_index&attribute_pa_speed_index
+Clean-param: fdffd
+Clean-param: amp
+Clean-param: ovic_product_per_page
+Clean-param: LSCWP_CTRL&before_optm
+Clean-param: ak_action&reject_mobile
 sitemap: https://vsespecshini.ru/sitemap.xml
 Sitemap: https://vsespecshini.ru/sitemap-images.xml
 

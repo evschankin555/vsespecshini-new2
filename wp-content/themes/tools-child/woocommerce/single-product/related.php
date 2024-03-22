@@ -274,6 +274,7 @@ if ($related_products2) : ?>
             }
             //$visibility = $count < 9 ? '' : ' style="display:none"';
             global $post; // Добавляем глобальную переменную $post
+            global $product;
             $post = get_post($product_id); // Получаем объект товара по ID
             setup_postdata($post);
 
@@ -326,7 +327,8 @@ echo '/-->';*/
                     $output = str_replace($product_name, $new_product_name, $output);
                 }
 
-                echo $output;
+                echo  getTumb($product_id);
+                //echo $output;
                 $count++;
             }
         endforeach;
@@ -340,6 +342,89 @@ echo '/-->';*/
     <?php
     wp_reset_postdata();
 endif;
+function getTumb($product_id){
+    global $post, $product;
+    //$product = wc_get_product( $post->ID );
+    if (!$post || !$product) {
+        return;
+    }
+    $width  = 300;
+    $height = 300;
+    $crop   = true;
+
+    $size = wc_get_image_size('shop_catalog');
+    if ($size) {
+        $width  = $size['width'];
+        $height = $size['height'];
+        if (!$size['crop']) {
+            $crop = false;
+        }
+    }
+
+    $lazy_load          = true;
+    $thumbnail_id       = $product->get_image_id();
+    $default_attributes = $product->get_default_attributes();
+
+    $width  = apply_filters('ovic_shop_product_thumb_width', $width);
+    $height = apply_filters('ovic_shop_product_thumb_height', $height);
+
+    if (!empty($default_attributes)) {
+        $lazy_load = false;
+    }
+
+    $image_thumb = apply_filters('ovic_resize_image', $thumbnail_id, $width, $height, $crop, $lazy_load);
+
+    $uri = get_permalink();
+
+    $title = get_post_meta( $post->ID, '_variation_description', true );
+
+    if(empty($title)) {
+        $title = get_the_title();
+    }
+
+    // Добавляем условие для определения типа товара
+    if ('variation' == $product->get_type()) {
+        $button_text = 'В корзину';
+        $button_class = 'product_type_variable add_to_cart_button';
+        $uri = get_custom_product_url($post->ID);
+        $button_url = '?add-to-cart='. $post->ID; // Для вариаций ссылка на товар
+    } else {
+        $button_text = 'Выбрать ...';
+        $button_class = 'product_type_simple add_to_cart_button';
+        // Для обычных товаров формируем ссылку на основе его SKU
+        $button_url = $uri;
+    }
+
+    $templateTumb =
+        '<li class="product-item col-bg-4 col-lg-4 col-md-4 col-sm-4 col-xs-6 col-ts-6 style-1 product type-product post-'. $post->ID
+        .' status-publish first instock product_cat-gruzovye-diski has-post-thumbnail featured purchasable product-type-simple">
+    <div class="product-inner">
+        <div class="product-thumb">
+                    <a class="thumb-link woocommerce-product-gallery__image" href="'.$uri.'" title="'.$title.'">
+                <figure>'.wp_specialchars_decode($image_thumb['img']).'</figure>
+            </a>
+                <div class="flash">
+                        </div>
+            <div class="hint--left hint--bounce yith-wcqv-button-wapper" aria-label="Быстрый просмотр"><a href="#" class="button yith-wcqv-button" data-product_id="'. $post->ID
+        .'" data-product_sku="#'.$product->get_sku().'">Быстрый просмотр</a></div>    </div>
+        <div class="product-info">
+            
+        <span class="price"><span class="woocommerce-Price-amount amount">'.number_format($product->get_price(), 0, '.', ' ').'<span class="woocommerce-Price-currencySymbol">₽</span></span></span>
+            <h3 class="woocommerce-loop-product__title">
+                <a href="'.$uri.'" title="'.$title.'">'.$title.'</a>
+            </h3>
+                    <div class="group-button">
+                <div class="inner">
+                    <a href="'.$button_url.'" data-quantity="1" class="button '.$button_class.'" data-product_id="'. $post->ID
+        .'" data-product_sku="#'.$product->get_sku().'" aria-label="Добавить &quot;'.$title.'&quot; в корзину" rel="nofollow">'.$button_text.'</a>            </div>
+            </div>
+        </div>
+    </div>
+    </li>';
+    return $templateTumb;
+}
+
+
 ?>
 
 <script>
@@ -355,6 +440,9 @@ endif;
                 // Показываем все скрытые продукты, если пользователь прокрутил страницу вниз
                 $('.products.columns-6 li.product-item:hidden').show();
             }
+        });
+        $('.product-name.product_title').each(function (){
+            $(this).removeClass('product-name').removeClass('product_title').addClass('woocommerce-loop-product__title');
         });
     });
 </script>

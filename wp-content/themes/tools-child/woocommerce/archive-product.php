@@ -34,19 +34,10 @@ do_action( 'woocommerce_before_main_content' );
 		<h1 class="woocommerce-products-header__title page-title"><?php woocommerce_page_title(); ?></h1>
 	<?php endif; ?>
 
-	<?php
-	/**
-	 * Hook: woocommerce_archive_description.
-	 *
-	 * @hooked woocommerce_taxonomy_archive_description - 10
-	 * @hooked woocommerce_product_archive_description - 10
-	 */
-	do_action( 'woocommerce_archive_description' );
-	?>
 </header>
 <?php if ( is_active_sidebar( 'shop-widget-area-after-header' ) ) : ?>
 	<div class="sidebar col-lg-12 col-md-12 col-sm-12 shop-widget-area-after-header">
-		<?php dynamic_sidebar( 'shop-widget-area-after-header' ); ?>
+		<?php //dynamic_sidebar( 'shop-widget-area-after-header' ); ?>
 	</div><!-- .widget-area -->
 <?php endif; ?>
 <?php
@@ -78,12 +69,21 @@ if ( woocommerce_product_loop() ) {
 
 	woocommerce_product_loop_end();
 
-	/**
+    /**
 	 * Hook: woocommerce_after_shop_loop.
 	 *
 	 * @hooked woocommerce_pagination - 10
 	 */
 	do_action( 'woocommerce_after_shop_loop' );
+
+    /**
+     * Hook: woocommerce_archive_description.
+     *
+     * @hooked woocommerce_taxonomy_archive_description - 10
+     * @hooked woocommerce_product_archive_description - 10
+     */
+    do_action('woocommerce_archive_description');
+
 } else {
 	/**
 	 * Hook: woocommerce_no_products_found.

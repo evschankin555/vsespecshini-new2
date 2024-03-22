@@ -1,5 +1,6 @@
 <?php
 add_action( 'widgets_init', 'register_widgets' );
+ini_set('display_errors', 1);
 function register_widgets()
 {
 	register_sidebar( array(
@@ -449,8 +450,8 @@ $TemplateMeta = [
 	"variable_shini_wpseo_desc"	=> "#%category_clean%# #%title%#  размер: #%pa_tyre_width%#/#%pa_tyre_profile%# #%pa_tyre_rim%#  #%pa_load_index%# #%pa_speed_index%#  для спецтехники. Цена  #%title%# , отзывы о шине. Купить шины #%title%# в Москве и доставкой в города России.",
 
 
-	"shini_wpseo_title"		=> "#%category_clean%# #%title%# цена от #%price%# руб",
-	"shini_product_title"		=> "#%title%# цена от #%price%# руб",
+	"shini_wpseo_title"		=> "#%category_clean%# #%title%# ",//"#%category_clean%# #%title%# цена от #%price%# руб",
+	"shini_product_title"		=> "#%title%#",//"#%title%# цена от #%price%# руб",
 	"shini_wpseo_desc"		=> "#%category_clean%# #%title%#  для спецтехники. Цена от #%title%# , отзывы о шине. Купить шины #%title%# в Москве и доставкой в города России.",
 
 	"shini_wpseo_page_title_sort"	=> " #%pa_tyre_width%#/#%pa_tyre_profile%# #%pa_tyre_rim%# #%pa_load_index%# #%pa_speed_index%#",
@@ -584,9 +585,46 @@ function set_wpseo_metadesc($wpseo_replace_vars)
 		$wpseo_replace_vars = set_page_title($wpseo_replace_vars);
 	}
 
+    //новая доктрина заголовков от января 2024г
+    if(is_product())
+    {
+        $categories = get_the_terms($post->ID, 'product_cat');
+        $category = reset($categories);
+        $category_name = $category->name;
+        $product_name = $post->post_title;
+        $product_model = $product_name;
+
+        if($variableID > 0){
+            $pid = extractPidFromCurrentUrl();
+            $product_name = get_post_meta($pid, '_variation_description', true );
+        }
+
+        $predmet1 = 'шин';
+        $predmet2 = 'шине';
+        if($category_name == 'Грузовые диски' || $category_name == 'Грузовые диски на прицеп'){
+            $category_name = 'Диски';
+
+            $predmet1 = 'дисков';
+            $predmet2 = 'диске';
+        }
+        $wpseo_replace_vars = $category_name . ' ' . $product_name .
+            ' купить в Москве и с доставкой по России. Продажа '.$predmet1
+            .' ' . get_first_word($product_model) .' отзывы о '.$predmet2
+            .', быстрая доставка';
+    }
+
 	return $wpseo_replace_vars;
 }
+function get_first_word($product_model) {
+    // Разбиваем строку на массив слов
+    $words = explode(' ', $product_model);
 
+    // Берем первый элемент массива (первое слово)
+    $first_word = $words[0];
+
+    // Возвращаем первое слово
+    return $first_word;
+}
 function du_wpseo_metadesc($template)
 {
 	global $post;
@@ -632,18 +670,18 @@ function set_page_title($title)
 	$terms_name 	= [];
 	$replacements 	= [];
 
-
-	if(isset($data['filters']) && is_array($data['filters']))
-	{
-				foreach($data['filters'] as $filters)
-		{
-			foreach($filters['terms'] as $filter)
-			{
-				$taxonomy = $filter->taxonomy;
-				$attr[$taxonomy] = $filter->name;
-			}
-		}
-	}
+    if (isset($data['filters']) && is_array($data['filters'])) {
+        foreach ($data['filters'] as $filters) {
+            if (isset($filters['terms']) && is_array($filters['terms'])) {
+                foreach ($filters['terms'] as $filter) {
+                    if (is_object($filter) && isset($filter->taxonomy) && isset($filter->name)) {
+                        $taxonomy = $filter->taxonomy;
+                        $attr[$taxonomy] = $filter->name;
+                    }
+                }
+            }
+        }
+    }
 
 	$template = $title;
 
@@ -728,10 +766,81 @@ function set_wpseo_title($title)
 		$title = set_page_title($title);
 	}
 
+    //новая доктрина заголовков от января 2024г
+	if(is_product())
+	{
+        $categories = get_the_terms($post->ID, 'product_cat');
+        $category = reset($categories);
+
+        $category_name = $category->name;
+        $product_name = $post->post_title;
+        $categories = get_the_terms($post->ID, 'product_cat');
+
+        if ($categories && !is_wp_error($categories)) {
+            foreach ($categories as $category) {
+                if (0 == count(get_ancestors($category->term_id, 'product_cat'))) {
+                    if($category->name == 'Шины'){
+                        $category_name = $category->name;
+                        $product_name = $post->post_title;
+                    }
+                }
+            }
+        }
+
+        if($category_name == 'Грузовые диски' || $category_name == 'Грузовые диски на прицеп'){
+            $category_name = 'Диски';
+        }
+
+        $product = wc_get_product( $post->ID );
+        $price = 'от ' . $product->get_price();
+        if($variableID > 0){
+            $pid = extractPidFromCurrentUrl();
+            $product_name = get_post_meta($pid, '_variation_description', true );
+            $product = wc_get_product( $pid );
+            if ($product && method_exists($product, 'get_price')) {
+                $price = $product->get_price();
+            }         }
+
+        $title = $category_name . ' ' . $product_name . ' цена ' . $price .' руб';
+	}
+
 	$title = esc_html( wp_strip_all_tags( stripslashes( $title ), true ) );
 
 	return $title;
 }
+function extractPidFromCurrentUrl() {
+    // Получаем текущий URL
+    $urlParts = explode('/', rtrim($_SERVER['REQUEST_URI'], '/'));
+
+    // Ищем часть, содержащую "pid_"
+    $pid = null;
+    foreach ($urlParts as $part) {
+        $pidIndex = strpos($part, 'pid_');
+        if ($pidIndex !== false) {
+            // Если нашли, извлекаем часть после "pid_"
+            $pidPart = substr($part, $pidIndex + 4);
+
+            // Разбиваем на части через дефис
+            $pidParts = explode('-', $pidPart);
+
+            // Извлекаем последнюю часть (после последнего дефиса)
+            $pid = end($pidParts);
+
+            // Удаляем возможные тире перед числом и другие символы
+            $pid = filter_var($pid, FILTER_SANITIZE_NUMBER_INT);
+
+            // Проверяем, что это действительно число
+            if (is_numeric($pid)) {
+                return $pid;
+            }
+        }
+    }
+
+    // Если не найдено, возвращаем null
+    return $pid;
+}
+
+
 
 function du_wpseo_title($template)
 {
@@ -1577,7 +1686,6 @@ function get_variation_id_by_attributes($slug, $attributes) {
 
 	// Получение всех вариаций товара
 	$variation_ids = $product->get_children();
-
 	foreach ($variation_ids as $variation_id) {
 		$variation = wc_get_product($variation_id);
 		$variation_attributes = $variation->get_variation_attributes();
@@ -1588,10 +1696,7 @@ function get_variation_id_by_attributes($slug, $attributes) {
 				if ($attribute_value !== null && $variation_attributes['attribute_' . $attribute_name] !== $attribute_value) {
 					$match = false;
 					break;
-				}
-			} else {
-				$match = false;
-				break;
+                }
 			}
 		}
 
@@ -1611,19 +1716,53 @@ function custom_parse_request($wp) {
 
 	$parsed_url = parse_url($request_uri);
 	$path = $parsed_url['path'];
-
-	if (strpos($request_uri, '?attribute_pa_') !== false && isset($parsed_url['query'])) {
+	if (strpos($request_uri, '?attribute_pa_') !== false && isset($parsed_url['query'])
+        || !empty($_GET['pid'])
+        || strpos($request_uri, 'pid_') !== false
+    ) {
+        preg_match('/-pid_([0-9]+)\/?$/', $path, $matches);
+        $pid = intval($matches[1]);
 		parse_str($parsed_url['query'], $query_params);
 
 		$uri_parts = explode('/', trim($request_uri, '/'));
 		$path = $parsed_url['path'];
 		$slug = trim(str_replace('/product/', '', $path), '/');
 
-		if (isset($query_params['pid'])) {
-			$new_url = get_custom_product_url($query_params['pid']);
-			wp_redirect($new_url, 301);
-			exit;
-		}
+        if (isset($query_params['pid']) || !empty($_GET['pid']) || !empty($pid)) {
+            if (!empty($pid)){
+                $pid =  $pid;
+            } elseif (empty($_GET['pid'])){
+                $pid =  $query_params['pid'];
+            } else {
+                $pid =  $_GET['pid'];
+            }
+            $product = wc_get_product($pid);
+            if (!$product || is_wp_error($product)) {
+                // Очищаем текущий контент
+                $wp->query_vars = array();
+                $wp->is_404 = true;
+
+                // Задаем заголовок 404
+                status_header(404);
+
+                // Включаем шаблон 404 страницы
+                include get_404_template();
+                die();
+            }
+            // Получение текущего URL с учетом атрибутов запроса
+            $current_url = home_url($_SERVER['REQUEST_URI']);
+
+            // Получение нового URL с использованием функции
+            $new_url = get_custom_product_url($pid);
+
+            // Проверка, нужен ли редирект
+            if ($current_url !== $new_url) {
+                wp_redirect($new_url, 301);
+                exit;
+            }
+
+        }
+
 		if (isset($query_params['variation_id'])) {
 			$new_url = get_custom_product_url($query_params['variation_id']);
 			wp_redirect($new_url, 301);
@@ -1646,14 +1785,18 @@ function custom_parse_request($wp) {
 			exit;
 		}
 	}
-
 	// Ищем PID в конце URL
 	if (preg_match('/-pid_([0-9]+)\/?$/', $path, $matches)) {
-		$pid = intval($matches[1]);
-		$_GET['pid'] = $pid;
+         $pid = intval($matches[1]);
+         $_GET['pid'] = $pid;
 		// Проверим, является ли PID вариацией
 		$product = wc_get_product($pid);
-		if ($product && $product->is_type('variation')) {
+        if (!$product || is_wp_error($product)) {
+            // Вывести код 404 и отобразить страницу 404
+            status_header(404);
+            nocache_headers();
+            $wp->is_404 = true;
+        }else if ($product && $product->is_type('variation')) {
 			// Получим родительский продукт вариации
 			$parent_product = wc_get_product($product->get_parent_id());
 
@@ -1678,33 +1821,155 @@ function custom_parse_request($wp) {
 }
 add_action('parse_request', 'custom_parse_request');
 
-
 function get_custom_product_url($post_id) {
-	$product = wc_get_product($post_id);
+    $product = wc_get_product($post_id);
+    // Проверим, существует ли пост с заданным идентификатором
+    $post = get_post($post_id);
+    if (!$post) {
+        return ''; // или другая логика по умолчанию, в зависимости от ваших требований
+    }
 
-	// Отбросить часть URL после (и включая) символа '?'
-	$base_url = explode('?', get_permalink($post_id))[0];
+    // Отбросить часть URL после (и включая) символа '?'
+    $base_url = explode('?', get_permalink($post_id))[0];
 
-	$attributes = array_map(function ($value) {
-		return sanitize_title($value);
-	}, $product->get_attributes());
-	$uri = $base_url . implode('-', $attributes) . "-pid_" . $post_id . '/';
+    $attributes = array();
 
-	return $uri;
+    // Проверяем, что $product не равен false и имеет метод get_attributes()
+    if ($product && method_exists($product, 'get_attributes')) {
+        foreach ($product->get_attributes() as $value) {
+            $sanitized_value = sanitize_title($value);
+            if (!empty($sanitized_value)) {
+                $attributes[] = $sanitized_value;
+            }
+        }
+    }
+
+    // Добавим проверку на пустоту массива атрибутов и наличие вариаций
+    if (!empty($attributes) && $product->is_type('variation')) {
+        $uri = $base_url . implode('-', $attributes) . "-pid_" . $post_id . '/';
+    } else {
+        $uri = $base_url;
+    }
+
+    return $uri;
 }
+
+
+
+function is_valid_pid() {
+    return isset($_GET['pid']) && is_numeric($_GET['pid']);
+}
+
+function get_custom_url_by_pid() {
+    if (is_valid_pid()) {
+        $custom_url = get_custom_product_url($_GET['pid']);
+        if ($custom_url) {
+            return $custom_url;
+        }
+    }
+    return false;
+}
+function is_custom_mask_url($url) {
+    $canonical_base = 'product-category/shini/filters/';
+    return strpos($url, $canonical_base) !== false;
+}
+
+function check_and_redirect_custom_url() {
+    if (is_custom_mask_url($_SERVER['REQUEST_URI'])) {
+        // Разбиваем строку на части по "/"
+        $url_parts = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+
+        // Массив для хранения параметров
+        $params = array(
+            'tyre_width'    => '',
+            'tyre_profile'  => '',
+            'tyre_rim'      => '',
+            'page'          => '',
+        );
+
+        // Проходим по каждой части URL и определяем параметры
+        foreach ($url_parts as $key => $value) {
+            switch ($value) {
+                case 'tyre_width':
+                case 'tyre_profile':
+                case 'tyre_rim':
+                case 'page':
+                    // Если это один из параметров, то устанавливаем значение
+                    $params[$value] = $url_parts[$key + 1] ?? '';
+                    break;
+            }
+        }
+
+        // Формирование канонического URL
+        $canonical_url = '/product-category/shini/filters/';
+
+        if (!empty($params['tyre_width'])) {
+            $canonical_url .= 'tyre_width/' . $params['tyre_width'] . '/';
+        }
+
+        if (!empty($params['tyre_profile'])) {
+            $canonical_url .= 'tyre_profile/' . $params['tyre_profile'] . '/';
+        }
+
+        if (!empty($params['tyre_rim'])) {
+            $canonical_url .= 'tyre_rim/' . $params['tyre_rim'] . '/';
+        }
+
+        // Добавляем параметр 'page', если он установлен
+        if ($params['page'] !== '') {
+            $canonical_url .= 'page/' . $params['page'] . '/';
+        }
+
+        // Проверка и редирект, если URL не соответствует каноническому
+        if (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) !== $canonical_url) {
+            //wp_redirect($canonical_url, 301);
+            //exit();
+        }
+        return $canonical_url;
+    }
+
+    return false;
+}
+
+
+
+
+
 function custom_canonical_url($canonical_url) {
-	if (isset($_GET['pid']) && is_numeric($_GET['pid'])) {
-		$custom_url = get_custom_product_url($_GET['pid']);
-		if ($custom_url) {
-			return $custom_url;
-		}
-	}
-	return 'https://vsespecshini.ru'.$_SERVER['REQUEST_URI'];
+    // Проверка наличия параметра страницы и его значения
+    if (isset($_GET['page']) && is_numeric($_GET['page']) && intval($_GET['page']) > 1) {
+        // Собираем канонический URL без параметра страницы
+        $canonical_without_page = preg_replace('/\/page\/\d+/', '', $_SERVER['REQUEST_URI']);
+        $canonical_url = 'https://vsespecshini.ru' . $canonical_without_page;
+    } else {
+        // Получаем URL без параметров запроса
+        $url_without_query = strtok($_SERVER['REQUEST_URI'], '?');
+        $canonical_url = 'https://vsespecshini.ru' . $url_without_query;
+    }
+
+    // Проверка и редирект для маски
+    $custom_mask_result = check_and_redirect_custom_url();
+    if ($custom_mask_result) {
+        return 'https://vsespecshini.ru'.$custom_mask_result;
+    }
+    // Проверка наличия параметра pid и его значения
+    $custom_url_by_pid = get_custom_url_by_pid();
+    if ($custom_url_by_pid) {
+        return $custom_url_by_pid;
+    }
+
+    // По умолчанию
+    return $canonical_url;
 }
-add_filter('wpseo_canonical', 'custom_canonical_url', 9999);
-add_filter('canonical', 'custom_canonical_url', 9999);
-add_filter('meta_canonical', 'custom_canonical_url', 9999);
-add_action( 'wpseo_head', 'custom_canonical_url', 21 );
+
+// Применение фильтра
+add_filter('wpseo_canonical', 'custom_canonical_url', 10);
+//add_filter('canonical', 'custom_canonical_url', 1);
+//add_filter('meta_canonical', 'custom_canonical_url', 1);
+//add_action('wpseo_head', 'custom_canonical_url', 1);
+
+
+
 
 function custom_og_url($og_url) {
 	if (isset($_GET['pid']) && is_numeric($_GET['pid'])) {
@@ -1715,7 +1980,7 @@ function custom_og_url($og_url) {
 	}
 	return 'https://vsespecshini.ru'.$_SERVER['REQUEST_URI'];
 }
-add_filter('wpseo_opengraph_url', 'custom_og_url', 20);
+add_filter('wpseo_opengraph_url', 'custom_canonical_url', 20);
 
 
 function custom_woocommerce_breadcrumbs($crumbs, $class) {
@@ -1759,7 +2024,6 @@ function log_to_file($message) {
 }
 
 function generate_variation_sitemap() {
-	ini_set('display_errors', 1);
 
 	$args = array(
 		'post_type' => 'product_variation',
@@ -1892,10 +2156,310 @@ function get_variation_description($variation_id) {
 	return '';
 }
 
+function generateProductXML($product_id, $doc, $channel, $productParent = false, $data = false)
+{
+
+    $product = wc_get_product($product_id);
+
+    $item = $doc->createElement('item');
+
+    $id = $doc->createElement('g:id');
+    $variation_sku = $product->get_sku();;
+    $id_cdata = $doc->createCDATASection($variation_sku);
+    $id->appendChild($id_cdata);
+    $item->appendChild($id);
+
+    $title = $doc->createElement('title');
+    if($productParent){
+        $product_name = get_post_meta($product_id, '_variation_description', true );
+    }else{
+        $product_post = get_post($product_id);
+        $product_name = $product_post->post_title;
+    }
+    $title_cdata = $doc->createCDATASection($product_name);
+    $title->appendChild($title_cdata);
+    $item->appendChild($title);
+
+    $description = $doc->createElement('description');
+    if($productParent){
+        $description_text = $data['description_text'];
+    }else{
+        $description_text = $product->get_short_description();
+        // Используем регулярное выражение для получения текста между тегами <a>
+        preg_match_all('/<a.*?>(.*?)<\/a>/', $description_text, $matches);
+
+        // Заменяем теги <a> на текст между ними
+        foreach ($matches[0] as $index => $match) {
+            $replacement = $matches[1][$index];
+            $description_text = str_replace($match, $replacement, $description_text);
+        }
+    }
+
+    $description_cdata = $doc->createCDATASection($description_text);
+    $description->appendChild($description_cdata);
+    $item->appendChild($description);
+
+    $item_group_id = $doc->createElement('g:item_group_id');
+    $item_group_id_cdata = $doc->createCDATASection($product->get_id());
+    $item_group_id->appendChild($item_group_id_cdata);
+    $item->appendChild($item_group_id);
+
+    $link = $doc->createElement('link');
+    $link_cdata = $doc->createCDATASection(get_custom_product_url($product_id));
+    $link->appendChild($link_cdata);
+    $item->appendChild($link);
+
+    $product_type = $doc->createElement('g:product_type');
+    if($productParent){
+        $product_type_text = $data['product_type_text'];
+    }else{
+        $product_type_text = get_product_type_hierarchy($product_id);
+    }
+    $product_type_cdata = $doc->createCDATASection($product_type_text);
+    $product_type->appendChild($product_type_cdata);
+    $item->appendChild($product_type);
+
+    $google_product_category = $doc->createElement('g:google_product_category');
+    if($productParent){
+        $last_category = $data['last_category'];
+    }else{
+        if (strpos($product_type_text, '>') !== false) {
+            // Разделение строки по символу ">"
+            $categories = explode('>', $product_type_text);
+            if (is_array($categories) && !empty($categories)) {
+                $last_category = trim(end($categories));
+            }else{
+                $last_category = trim($product_type_text);
+            }
+        } else {
+            $last_category = trim($product_type_text);
+        }
+    }
+
+    $google_product_category_cdata = $doc->createCDATASection($last_category);
+    $google_product_category->appendChild($google_product_category_cdata);
+    $item->appendChild($google_product_category);
+
+    $image_id = $product->get_image_id();
+    $image_url = wp_get_attachment_image_url($image_id, 'full');
+    $image_link = $doc->createElement('g:image_link');
+    $image_link_cdata = $doc->createCDATASection(esc_url($image_url));
+    $image_link->appendChild($image_link_cdata);
+    $item->appendChild($image_link);
+
+    // Добавление дополнительных изображений
+    $additional_image_ids = $product->get_gallery_image_ids();
+    foreach ($additional_image_ids as $additional_id) {
+        $additional_image_url = wp_get_attachment_image_url($additional_id, 'full');
+        $additional_image_link = $doc->createElement('g:additional_image_link');
+        $additional_image_cdata = $doc->createCDATASection(esc_url($additional_image_url));
+        $additional_image_link->appendChild($additional_image_cdata);
+        $item->appendChild($additional_image_link);
+    }
+
+    $condition = $doc->createElement('g:condition');
+    $condition_cdata = $doc->createCDATASection('New');
+    $condition->appendChild($condition_cdata);
+    $item->appendChild($condition);
+
+    $availability = $doc->createElement('g:availability');
+    $availability_cdata = $doc->createCDATASection('in stock');
+    $availability->appendChild($availability_cdata);
+    $item->appendChild($availability);
+
+    $price_value = number_format($product->get_price(), 2, '.', '') . ' RUB';
+    $price_cdata = $doc->createCDATASection($price_value);
+
+    $price = $doc->createElement('g:price');
+    $price->appendChild($price_cdata);
+    $item->appendChild($price);
+
+    $identifier_exists = $doc->createElement('g:identifier_exists');
+    $identifier_exists_cdata = $doc->createCDATASection('yes');
+    $identifier_exists->appendChild($identifier_exists_cdata);
+    $item->appendChild($identifier_exists);
+
+    $brand = $doc->createElement('g:brand');
+    if($productParent){
+        $brand_text = $data['brand_text'];
+    }else{
+        $brand_text = getBrandText($product);
+    }
+    $brand_cdata = $doc->createCDATASection($brand_text);
+    $brand->appendChild($brand_cdata);
+    $item->appendChild($brand);
+
+    $channel->appendChild($item);
+    if($productParent == false){
+        return [
+                'description_text' => $description_text,
+                'product_type_text' => $product_type_text,
+                'last_category' => $last_category,
+                'brand_text' => $brand_text,
+        ];
+    }else{
+        return false;
+    }
+}
+
 function my_custom_woocommerce_template_loop_product_title() {
 	global $product;
 	//echo '<h3 class="woocommerce-loop-product__title"><a href="' . esc_url( get_the_permalink() ) . '" title="' . esc_attr( get_the_title() ) . '">' . get_the_title() . '</a></h3>';
 }
 remove_action( 'woocommerce_shop_loop_item_title', 'woocommerce_template_loop_product_title', 10 );
 add_action( 'woocommerce_shop_loop_item_title', 'my_custom_woocommerce_template_loop_product_title', 10 );
+function generate_google_merchant_feed() {
+ini_set('display_errors', 0);
+    $args = array(
+        'post_type' => 'product',
+        'posts_per_page' => -1,
+        'post_status' => 'publish',
+        'fields' => 'ids',
+        'no_found_rows' => true,
+        'update_post_meta_cache' => false,
+        'update_post_term_cache' => false,
+        'meta_query' => array(
+            array(
+                'key' => '_stock_status',
+                'value' => 'instock',
+                'compare' => '=',
+            )
+        )
+    );
+
+    $query = new WP_Query($args);
+
+    if (!$query->have_posts()) {
+        log_to_file("No products found");
+        return;
+    }
+
+    $doc = new DOMDocument('1.0', 'utf-8');
+    $doc->formatOutput = true;
+
+    $rss = $doc->createElement('rss');
+    $rss->setAttribute('xmlns:g', 'http://base.google.com/ns/1.0');
+    $rss->setAttribute('xmlns:c', 'http://base.google.com/cns/1.0');
+    $rss->setAttribute('version', '2.0');
+    $doc->appendChild($rss);
+
+    $channel = $doc->createElement('channel');
+    $rss->appendChild($channel);
+    $title = $doc->createElement('title');
+    $title_cdata = $doc->createCDATASection('Интернет-магазин шин для спецтехники');
+    $title->appendChild($title_cdata);
+    $channel->appendChild($title);
+
+    $link = $doc->createElement('link');
+    $link_cdata = $doc->createCDATASection('https://vsespecshini.ru');
+    $link->appendChild($link_cdata);
+    $channel->appendChild($link);
+
+    $description = $doc->createElement('description');
+    $description_cdata = $doc->createCDATASection('Продажа грузовых, строительных сельскохозяйственных шин');
+    $description->appendChild($description_cdata);
+    $channel->appendChild($description);
+
+    $count = 0;
+    foreach ($query->posts as $product_id) {
+        $data = generateProductXML($product_id, $doc, $channel, false, false);
+        // Если у продукта есть вариации, обрабатываем каждую
+        $product = wc_get_product($product_id);
+        $count++;
+        if ($product->is_type('variable')) {
+            foreach ($product->get_children() as $variation_id) {
+                $variation = wc_get_product($variation_id);
+
+                // Проверка наличия вариации
+                if ($variation->is_in_stock()) {
+                    // Обработка вариации
+                    generateProductXML($variation_id, $doc, $channel, true, $data);
+                    $count++;
+                }
+            }
+        }
+    }
+
+    $feed_filename = ABSPATH . 'google-merchant-feed.xml';
+    file_put_contents($feed_filename, $doc->saveXML());
+    log_to_file("Google Merchant Feed generated successfully. Count products in xml file:".$count);
+    return $count;
+}
+
+
+add_action('rest_api_init', function () {
+    register_rest_route('vsespecshini/v1', '/generate-google-merchant-feed', array(
+        'methods' => 'GET',
+        'callback' => 'generate_google_merchant_feed_api',
+        'permission_callback' => '__return_true'  // Отключаем проверку прав пользователя
+    ));
+});
+
+function generate_google_merchant_feed_api() {
+    // Вызываем функцию для генерации Google Merchant Feed
+    $count = generate_google_merchant_feed();
+
+    // Возвращаем ответ в формате JSON
+    return new WP_REST_Response(array('message' => 'Google Merchant Feed generated successfully. Count products in xml file:'.$count), 200);
+}
+
+function get_hierarchy_name($terms, $term_id)
+{
+    $hierarchy = [];
+
+    while ($term_id !== 0) {
+        $found = false;
+
+        foreach ($terms as $term) {
+            if ($term->term_id === $term_id) {
+                $hierarchy[] = $term->name;
+                $term_id = $term->parent;
+                $found = true;
+                break;
+            }
+        }
+
+        // Если родительский элемент не найден, прервать цикл
+        if (!$found) {
+            break;
+        }
+    }
+
+    return array_reverse($hierarchy);
+}
+
+function get_product_type_hierarchy($product_id) {
+    ini_set('max_execution_time', 0);
+    $categories = wp_get_post_terms($product_id, 'product_cat', array('fields' => 'all'));
+
+    $hierarchy = array();
+
+    $categories_by_id = array();
+    foreach ($categories as $category) {
+        $categories_by_id[$category->term_id] = $category;
+    }
+
+    foreach ($categories as $category) {
+        $hierarchy_name = get_hierarchy_name($categories, $category->term_id);
+        $hierarchy_string = implode(" > ", $hierarchy_name);
+        $result =  $hierarchy_string . "\n";
+    }
+
+    // Объединяем массив в строку с разделителем '>'
+    return $result;
+}
+
+function getBrandText($product) {
+    $brand_text = '';
+
+    $terms = wc_get_product_terms($product->get_id(), 'product_brand');
+
+    if (!empty($terms) && !is_wp_error($terms)) {
+        // Если есть термины, получаем текст первого
+        $first_term = reset($terms);
+        $brand_text = $first_term->name;
+    }
+
+    return $brand_text;
+}
 
