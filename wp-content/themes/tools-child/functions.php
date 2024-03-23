@@ -2222,23 +2222,24 @@ function generateProductXML($product_id, $doc, $channel, $productParent = false,
     $item->appendChild($product_type);
 
     $google_product_category = $doc->createElement('g:google_product_category');
-    if($productParent){
-        $last_category = $data['last_category'];
-    }else{
+        // Определяем категорию для основного товара
         if (strpos($product_type_text, '>') !== false) {
             // Разделение строки по символу ">"
             $categories = explode('>', $product_type_text);
-            if (is_array($categories) && !empty($categories)) {
-                $last_category = trim(end($categories));
-            }else{
-                $last_category = trim($product_type_text);
-            }
+            $main_category = trim($categories[0]); // Получаем главную категорию
         } else {
-            $last_category = trim($product_type_text);
+            $main_category = trim($product_type_text); // Если разделения нет, работаем с полным текстом
         }
+    // Назначаем ID категории в соответствии с главной категорией
+    if (mb_stripos($main_category, 'Шины') !== false) {
+        $category_id = '6093';
+    } elseif (mb_stripos($main_category, 'диск') !== false) {
+        $category_id = '6090';
+    } else {
+        $category_id = '6093'; // Значение по умолчанию, если не подходит ни под одно условие
     }
 
-    $google_product_category_cdata = $doc->createCDATASection($last_category);
+    $google_product_category_cdata = $doc->createCDATASection($category_id);
     $google_product_category->appendChild($google_product_category_cdata);
     $item->appendChild($google_product_category);
 
@@ -2291,6 +2292,8 @@ function generateProductXML($product_id, $doc, $channel, $productParent = false,
     $brand->appendChild($brand_cdata);
     $item->appendChild($brand);
 
+    addProductDetails($product_id, $doc, $item);
+
     $channel->appendChild($item);
     if($productParent == false){
         return [
@@ -2334,6 +2337,70 @@ function generateProductXMLParrent($product_id, $doc)
         'brand_text' => $brand_text,
         'product_id' => $product_id,
     ];
+}
+function get_product_attributes($product_id) {
+    $product = wc_get_product($product_id);
+    $attributes = $product->get_attributes();
+
+    $result = [];
+    foreach ($attributes as $attribute_key => $attribute) {
+        // Проверяем, является ли атрибут объектом WC_Product_Attribute
+        if (is_a($attribute, 'WC_Product_Attribute')) {
+            // Используем методы объекта
+            $name = $attribute->get_name();
+            $options = $attribute->get_options();
+        } else {
+            // Обрабатываем атрибут как массив или строку
+            $name = wc_attribute_label($attribute_key, $product);
+            $options = $attribute; // Может потребоваться дополнительная обработка
+        }
+
+        // Адаптируем код для добавления атрибутов в результат
+        $section_name = "Размер"; // Пример, нужно определить вашу логику
+        if (!isset($result[$section_name])) {
+            $result[$section_name] = [];
+        }
+        // В зависимости от типа $options, это может потребовать дальнейшей адаптации
+        $result[$section_name][$name] = is_array($options) ? implode(', ', $options) : $options;
+    }
+
+    return $result;
+}
+
+function addProductDetails($product_id, $doc, $item) {
+    $attributes = get_product_attributes($product_id); // Получаем атрибуты товара
+
+    foreach ($attributes as $section_name => $attrs) {
+        foreach ($attrs as $attribute_name => $attribute_value) {
+            // Пропускаем атрибуты с пустыми значениями или значением "0"
+            if (empty($attribute_value) || $attribute_value === "0") {
+                continue; // Прекращаем обработку текущего атрибута и переходим к следующему
+            }
+
+            $product_detail = $doc->createElement('g:product_detail');
+
+            // Добавляем название секции
+            $section_name_element = $doc->createElement('g:section_name');
+            $section_name_cdata = $doc->createCDATASection($section_name);
+            $section_name_element->appendChild($section_name_cdata);
+            $product_detail->appendChild($section_name_element);
+
+            // Добавляем название атрибута
+            $attribute_name_element = $doc->createElement('g:attribute_name');
+            $attribute_name_cdata = $doc->createCDATASection($attribute_name);
+            $attribute_name_element->appendChild($attribute_name_cdata);
+            $product_detail->appendChild($attribute_name_element);
+
+            // Добавляем значение атрибута
+            $attribute_value_element = $doc->createElement('g:attribute_value');
+            $attribute_value_cdata = $doc->createCDATASection($attribute_value);
+            $attribute_value_element->appendChild($attribute_value_cdata);
+            $product_detail->appendChild($attribute_value_element);
+
+            // Добавляем product_detail в item
+            $item->appendChild($product_detail);
+        }
+    }
 }
 
 function my_custom_woocommerce_template_loop_product_title() {
