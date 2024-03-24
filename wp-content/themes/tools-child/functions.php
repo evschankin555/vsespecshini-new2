@@ -1632,29 +1632,7 @@ var_dump($markup_offer);
 	return $markup_offer;
 }*/
 
-function add_brand_to_product_schema($data) {
-   if (!is_array($data)) {
-	  // If $data isn't an array, don't do anything.
-   } elseif (empty($product = wc_get_product())) {
-	  // Don't do anything.
-//   } elseif (!is_array($brands = wc_get_product_terms($product->get_id(), WPT_PBS_BRAND_ATTRIBUTE, array('fields' => 'names')))) {
-	} elseif (!is_array($brands = wp_get_post_terms($product->get_id(), 'product_brand', array('fields' => 'names')))) {
-	  // This product has no brands associated with it.
-   } elseif (empty($brands)) {
-	  // This product has zero brands associated with it.
-   } elseif (count($brands) == 1) {
-	  // This product has exactly one brand associated with it.
-	  $data['brand'] = array('@type' => 'Brand', 'name' => $brands[0]);
-   } else {
-	  // This product has multiple brands associated with it.
-	  $data['brand'] = array();
-	  foreach ($brands as $brand) {
-		 $data['brand'][] = array('@type' => 'Brand', 'name' => $brand);
-	  }
-   }
-   return $data;
-}
-add_filter('woocommerce_structured_data_product', 'add_brand_to_product_schema');
+
 function get_product_id_by_slug($slug) {
 	$args = array(
 		'name'        => $slug,
@@ -2341,31 +2319,62 @@ function generateProductXMLParrent($product_id, $doc)
 function get_product_attributes($product_id) {
     $product = wc_get_product($product_id);
     $attributes = $product->get_attributes();
-
     $result = [];
-    foreach ($attributes as $attribute_key => $attribute) {
-        // Проверяем, является ли атрибут объектом WC_Product_Attribute
-        if (is_a($attribute, 'WC_Product_Attribute')) {
-            // Используем методы объекта
-            $name = $attribute->get_name();
-            $options = $attribute->get_options();
-        } else {
-            // Обрабатываем атрибут как массив или строку
-            $name = wc_attribute_label($attribute_key, $product);
-            $options = $attribute; // Может потребоваться дополнительная обработка
+    $exclude_attributes = ['pa_load_index', 'pa_speed_index', 'pa_disk_hole']; // Список исключаемых атрибутов
+
+    // Маппинг старых названий атрибутов к новым
+    $attribute_names_map = [
+        'pa_disk_width' => 'Ширина',
+        'pa_disk_rim' => 'Диаметр',
+        'pa_disk_pcd' => 'PCD',
+        'pa_disk_et' => 'Вылет',
+        'pa_disk_dia' => 'Диаметр ступицы',
+    ];
+
+    foreach ($attributes as $attribute_key => $attribute_value) {
+        // Пропускаем атрибут, если он находится в списке исключений
+        if (in_array($attribute_key, $exclude_attributes)) {
+            continue;
         }
 
-        // Адаптируем код для добавления атрибутов в результат
-        $section_name = "Размер"; // Пример, нужно определить вашу логику
-        if (!isset($result[$section_name])) {
-            $result[$section_name] = [];
+        $attribute_label = $attribute_key;
+        if (isset($attribute_names_map[$attribute_key])) {
+            // Переименовываем атрибут, если он есть в маппинге
+            $attribute_label = $attribute_names_map[$attribute_key];
+        } else {
+            // Получаем человекочитаемый лейбл для атрибута, если он не в маппинге
+            $attribute_label = wc_attribute_label($attribute_key);
         }
-        // В зависимости от типа $options, это может потребовать дальнейшей адаптации
-        $result[$section_name][$name] = is_array($options) ? implode(', ', $options) : $options;
+
+        if ($attribute_value instanceof WC_Product_Attribute) {
+            $options = $attribute_value->get_options();
+            $values = [];
+            foreach ($options as $option) {
+                $term = get_term_by('id', $option, $attribute_key);
+                if ($term && !is_wp_error($term)) {
+                    $values[] = $term->name;
+                }
+            }
+            // Сохраняем человекочитаемые значения атрибута
+            $value = implode(', ', $values);
+        } else {
+            if ($attribute_key && is_string($attribute_value)) {
+                $term = get_term_by('slug', $attribute_value, $attribute_key);
+                $value = $term ? $term->name : $attribute_value;
+            } else {
+                $value = $attribute_value;
+            }
+        }
+
+        // Пропускаем атрибут, если значение пусто или равно '0'
+        if (!empty($value) && $value !== '0') {
+            $result['Размер'][$attribute_label] = $value;
+        }
     }
 
     return $result;
 }
+
 
 function addProductDetails($product_id, $doc, $item) {
     $attributes = get_product_attributes($product_id); // Получаем атрибуты товара
@@ -2572,4 +2581,196 @@ function getBrandText($product) {
 
     return $brand_text;
 }
+function clean_description($description) {
+    // Удаление всех ссылок и их замена на текст ссылки
+    preg_match_all('/<a.*?>(.*?)<\/a>/', $description, $matches);
+    foreach ($matches[0] as $index => $match) {
+        $replacement = $matches[1][$index];
+        $description = str_replace($match, $replacement, $description);
+    }
+
+    // Удаление оставшихся HTML тегов
+    $description = wp_strip_all_tags($description);
+
+    return $description;
+}
+
+function shorten_description($description, $max_length = 150) {
+    $description = strip_tags($description); // Удаляем HTML теги
+    $description = html_entity_decode($description); // Преобразуем HTML-сущности обратно в соответствующие символы
+    $description = trim($description); // Удаляем пробелы в начале и конце строки
+
+    if (mb_strlen($description) > $max_length) {
+        // Обрезаем текст до заданной длины
+        $short_description = mb_substr($description, 0, $max_length);
+        // Обрезаем текст до последнего полного слова
+        $last_space_position = mb_strrpos($short_description, ' ');
+        $short_description = mb_substr($short_description, 0, $last_space_position);
+        // Добавляем троеточие
+        $short_description .= '...';
+        return $short_description;
+    }
+
+    return $description;
+}
+function add_brand_to_product_schema($data) {
+
+    if (!is_array($data)) {
+        // Если $data не является массивом, не делаем ничего.
+    } elseif (empty($product = wc_get_product())) {
+        // Если продукт пустой, не делаем ничего.
+    } elseif (!is_array($brands = wp_get_post_terms($product->get_id(), 'product_brand', array('fields' => 'names')))) {
+        // Этот продукт не имеет связанных брендов.
+    } elseif (empty($brands)) {
+        // У этого продукта нет брендов.
+    } elseif (count($brands) == 1) {
+        // У этого продукта ровно один бренд.
+        $data['brand'] = array('@type' => 'Brand', 'name' => $brands[0]);
+    } else {
+        // У этого продукта несколько брендов.
+        $data['brand'] = array();
+        foreach ($brands as $brand) {
+            $data['brand'][] = array('@type' => 'Brand', 'name' => $brand);
+        }
+    }
+
+    // Удаление @id
+    unset($data['@id']);
+
+    // Получаем текущий URL
+    $current_url = home_url( add_query_arg( null, null ) );
+
+// Извлекаем slug продукта из URL
+    $slug = basename(parse_url($current_url, PHP_URL_PATH));
+
+// Ищем ID продукта в slug
+    $matches = array();
+    if (preg_match('/pid_(\d+)/', $slug, $matches)) {
+        $product_id = $matches[1];
+        $product = wc_get_product($product_id);
+
+    }
+   if ($product instanceof WC_Product) {
+         if ($product->is_type('variation')) {
+            $product_url = get_custom_product_url($product_id);
+            $product_name = get_variation_description($product_id);
+            $product_sku = $product->get_sku();
+
+             // Получаем родительский продукт вариации
+            $parent_id = $product->get_parent_id();
+
+            $parent_product = wc_get_product($parent_id);
+            if ($parent_product instanceof WC_Product) {
+
+                // Получаем описание родительского продукта
+                $product_description = clean_description($parent_product->get_short_description());
+                $product_description = shorten_description($product_description, 250);
+                $product_model = $parent_product->get_name();
+            }
+        } else {
+             if ($product->is_type('variable')) {
+                 // Теперь получаем URL родительского продукта
+                 $product = wc_get_product();
+                 $product_id = $product->get_id();
+                 $product_price= $product->get_price();
+                 $product_url = get_permalink($product_id);
+                 $product_name = $product->get_name() .' цена от '.$product_price.' руб';
+                 $product_sku = $product->get_sku();
+                 $product_model = $product->get_name();
+
+                 // Получаем описание родительского продукта
+                 $product_description = clean_description($product->get_short_description());
+                 $product_description = shorten_description($product_description, 250);
+                 $product_model = $product->get_name();
+
+                 // Получаем вариации вариативного продукта
+                 $variations = $product->get_available_variations();
+                 $variation_prices = []; // Массив для хранения цен всех вариаций
+
+                 foreach ($variations as $variation) {
+                     $variation_obj = wc_get_product($variation['variation_id']);
+                     if ($variation_obj->is_in_stock()) {
+                         $variation_prices[] = $variation_obj->get_price(); // Добавляем цену в массив
+                     }
+                 }
+
+                 // Проверяем, не пуст ли массив цен
+                 if (!empty($variation_prices)) {
+                     $data['offers']['lowPrice'] = min($variation_prices); // Минимальная цена
+                     $data['offers']['highPrice'] = max($variation_prices); // Максимальная цена
+                     $data['offers']['offerCount'] = count($variation_prices); // Количество вариаций
+                     $data['offers']['priceCurrency'] =  'RUB';
+                 } else {
+                     // Если вариаций в наличии нет, можно установить значения как false или не добавлять их вообще
+                     $data['offers']['lowPrice'] = false;
+                     $data['offers']['highPrice'] = false;
+                     $data['offers']['offerCount'] = 0;
+                     $data['offers']['priceCurrency'] =  'RUB';
+                 }
+
+                 // Подготавливаем массив offers
+                 $offers = [];
+                 unset($data['offers'][0]);
+                 $data['offers']['type'] = 'AggregateOffer';
+                 foreach ($variations as $variation) {
+                     // Получаем объект вариации
+                     $variation_obj = wc_get_product($variation['variation_id']);
+                     if ($variation_obj->is_in_stock()) {
+                         // Собираем информацию о каждом оффере
+                         $offer = [
+                             'type' => 'Offer',
+                             'url' =>  get_custom_product_url($variation_obj->get_id()),
+                             'name' => get_variation_description($variation_obj->get_id()),
+                             'priceCurrency' => 'RUB',
+                             'price' => $variation_obj->get_price(),
+                             'availability' => 'http://schema.org/InStock',
+                             'itemCondition' => 'http://schema.org/NewCondition',
+                             'sku' => $variation_obj->get_sku(),
+                             // Добавляем информацию о продавце
+                             'seller' => [
+                                 '@type' => 'Organization',
+                                 'name' => 'Всеспецшины - магазин шин для спецтехники и грузовых автомобилей',
+                                 'url' => 'https://vsespecshini.ru/',
+                             ]
+                         ];
+
+                         // Добавляем оффер в массив
+                         $data['offers'][] = $offer;
+                     }
+
+                 }
+             }
+         }
+    }
+    if(!empty($product_name)){
+        $data['name'] = $product_name;
+    }
+    $data['url'] = $product_url;
+
+    if (isset($data['offers']) && count($data['offers']) > 0 && !$product->is_type('variable')) {
+        foreach ($data['offers'] as &$offer) {
+            $offer['url'] = $product_url;
+            // Устанавливаем состояние товара как новый
+            $offer['itemCondition'] = 'http://schema.org/NewCondition';
+            $offer['seller']['@type'] = 'Organisation';
+            $offer['seller']['name'] = 'Всеспецшины - магазин шин для спецтехники и грузовых автомобилей';
+            $offer['seller']['url'] = 'https://vsespecshini.ru/';
+        }
+        unset($offer); // Разорвать ссылку на последний элемент
+    }
+
+    if(!empty($product_sku)){
+        $data['sku'] = $product_sku;
+    }
+    if(!empty($product_description)){
+        $data['description'] = $product_description;
+    }
+    if(!empty($product_model)){
+        $data['model'] = $product_model;
+    }
+    //echo '<!--<pre>';print_r($data); echo '</pre>-->';
+    return $data;
+}
+add_filter('woocommerce_structured_data_product', 'add_brand_to_product_schema');
+
 
