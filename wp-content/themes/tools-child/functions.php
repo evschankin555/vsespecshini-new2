@@ -2772,4 +2772,34 @@ function add_brand_to_product_schema($data) {
 }
 add_filter('woocommerce_structured_data_product', 'add_brand_to_product_schema');
 
+add_action( 'init', 'register_product_model_taxonomy' );
+
+function register_product_model_taxonomy() {
+    $labels = array(
+        'name'              => _x( 'Модели', 'taxonomy general name', 'textdomain' ),
+        'singular_name'     => _x( 'Модель', 'taxonomy singular name', 'textdomain' ),
+        'search_items'      => __( 'Искать Модели', 'textdomain' ),
+        'all_items'         => __( 'Все Модели', 'textdomain' ),
+        'parent_item'       => __( 'Родительская Модель', 'textdomain' ),
+        'parent_item_colon' => __( 'Родительская Модель:', 'textdomain' ),
+        'edit_item'         => __( 'Изменить Модель', 'textdomain' ),
+        'update_item'       => __( 'Обновить Модель', 'textdomain' ),
+        'add_new_item'      => __( 'Добавить Новую Модель', 'textdomain' ),
+        'new_item_name'     => __( 'Название Новой Модели', 'textdomain' ),
+        'menu_name'         => __( 'Модели', 'textdomain' ),
+    );
+
+    $args = array(
+        'hierarchical'      => true,
+        'labels'            => $labels,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'query_var'         => true,
+        'rewrite'           => array( 'slug' => 'model' ),
+    );
+
+    register_taxonomy( 'product_model', array( 'product' ), $args );
+}
+
+
 
