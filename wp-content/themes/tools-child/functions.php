@@ -2680,7 +2680,6 @@ function add_brand_to_product_schema($data) {
 
                  // Получаем описание родительского продукта
                  $product_description = clean_description($product->get_short_description());
-                 $product_description = shorten_description($product_description, 250);
                  $product_model = $product->get_name();
 
                  // Получаем вариации вариативного продукта
